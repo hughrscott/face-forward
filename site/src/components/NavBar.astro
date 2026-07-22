@@ -1,0 +1,48 @@
+---
+const links = [
+  { href: '/manifesto/', label: 'Manifesto' },
+  { href: '/articles/', label: 'Articles' },
+  { href: '/visualizer/', label: 'Visualizer' },
+  { href: '/research/', label: 'Research' },
+  { href: '/get-involved/', label: 'Get Involved' },
+  { href: '/store/', label: 'Store' },
+  { href: '/about/', label: 'About' },
+];
+const current = Astro.url.pathname;
+---
+<header class="sticky top-0 z-40 border-b rule bg-forest/90 backdrop-blur">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 lg:px-8">
+    <a href="/" class="flex items-center gap-2 font-display text-lg font-semibold tracking-tight">
+      <span class="text-gold">Face</span><span>Forward</span>
+    </a>
+    <nav aria-label="Primary" class="hidden gap-6 font-sans text-sm md:flex">
+      {links.map((l) => (
+        <a
+          href={l.href}
+          class:list={[
+            'transition-brand duration-200 hover:text-gold',
+            current.startsWith(l.href) ? 'text-gold' : 'text-chalk/75',
+          ]}
+        >
+          {l.label}
+        </a>
+      ))}
+    </nav>
+    <a
+      href="/get-involved/"
+      class="hidden rounded-sm border border-gold/60 px-4 py-2 text-xs font-semibold uppercase tracking-[.14em] text-gold transition-brand duration-200 hover:bg-gold hover:text-forest md:inline-block"
+    >
+      Join
+    </a>
+    <details class="md:hidden">
+      <summary class="cursor-pointer list-none rounded border border-chalk/25 px-3 py-2 text-sm">Menu</summary>
+      <div class="absolute left-0 right-0 border-b rule bg-forest px-5 py-4">
+        <nav aria-label="Primary mobile" class="flex flex-col gap-3 text-sm">
+          {links.map((l) => (
+            <a href={l.href} class="text-chalk/85 hover:text-gold">{l.label}</a>
+          ))}
+        </nav>
+      </div>
+    </details>
+  </div>
+</header>

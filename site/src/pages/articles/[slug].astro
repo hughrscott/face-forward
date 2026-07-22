@@ -1,0 +1,62 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import NavBar from '../../components/NavBar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+  return allArticles.map((article) => ({
+    params: { slug: article.id },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+const dateLabel = article.data.publishDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+<Layout title={article.data.title} description={article.data.excerpt}>
+  <NavBar />
+  <main id="main">
+    <article class="mx-auto max-w-3xl px-5 py-16 lg:px-8 lg:py-20">
+      <a href="/articles/" class="text-sm text-gold hover:underline">&larr; All articles</a>
+      <header class="mt-6 border-b rule pb-8">
+        <div class="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[.16em] text-gold">
+          <span>{article.data.tag}</span>
+          <span class="text-chalk/30">&middot;</span>
+          <span class="text-chalk/50">{article.data.readTime} read</span>
+          <span class="text-chalk/30">&middot;</span>
+          <span class="text-chalk/50">{dateLabel}</span>
+        </div>
+        <h1 class="mt-4 font-display text-3xl font-semibold leading-tight sm:text-4xl">{article.data.title}</h1>
+        <p class="mt-4 text-lg leading-relaxed text-chalk/70">{article.data.excerpt}</p>
+      </header>
+      <div class="prose-article mt-10">
+        <Content />
+      </div>
+    </article>
+  </main>
+  <SiteFooter />
+</Layout>
+
+<style>
+  .prose-article :global(h2) {
+    margin-top: 2.5rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+  }
+  .prose-article :global(p) {
+    margin-top: 1.25rem;
+    line-height: 1.8;
+    color: rgba(245, 242, 235, 0.82);
+  }
+  .prose-article :global(a) {
+    color: var(--color-gold);
+    text-decoration: underline;
+  }
+</style>

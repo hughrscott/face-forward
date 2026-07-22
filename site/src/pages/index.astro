@@ -1,17 +1,146 @@
 ---
+import Layout from '../layouts/Layout.astro';
+import NavBar from '../components/NavBar.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 
+const pillars = [
+  {
+    name: 'Efficiency',
+    body: 'Small improvements scale. Driving directly into a space is often the simpler maneuver — and reversing out into the open aisle asks less of every driver.',
+  },
+  {
+    name: 'Courtesy',
+    body: 'Parking lots are shared public spaces. Forward-oriented parking naturally reduces door-to-door conflicts between neighboring vehicles.',
+  },
+  {
+    name: 'Design',
+    body: 'Much of our parking infrastructure — angled stalls, curbside spaces — was built around the expectation that vehicles enter from the front.',
+  },
+  {
+    name: 'Consistency',
+    body: 'Predictability benefits everyone. Common parking practices make shared spaces easier to read, anticipate, and move through calmly.',
+  },
+];
 ---
+<Layout title="Home">
+  <NavBar />
+  <main id="main">
+    <section class="relative overflow-hidden border-b rule">
+      <div class="mx-auto max-w-6xl px-5 py-16 lg:px-8 lg:py-24">
+        <div class="grid items-center gap-12 lg:grid-cols-2">
+          <div>
+            <p class="font-mono text-xs uppercase tracking-[.22em] text-gold">A civic case for the small choice</p>
+            <h1 class="mt-4 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+              Face Forward.<br /><span class="text-gold">Move Forward.</span>
+            </h1>
+            <p class="mt-6 max-w-lg text-lg leading-relaxed text-chalk/75">
+              Every day, millions of us share parking lots with complete strangers. We believe the way we park is one
+              of the small acts of courtesy that make shared spaces work.
+            </p>
+            <div class="mt-8 flex flex-wrap gap-4">
+              <a
+                href="/manifesto/"
+                class="rounded-sm bg-gold px-6 py-3 text-sm font-semibold uppercase tracking-[.1em] text-forest transition-brand duration-200 hover:brightness-110"
+              >
+                Read the Manifesto
+              </a>
+              <a
+                href="/visualizer/"
+                class="rounded-sm border border-chalk/25 px-6 py-3 text-sm font-semibold uppercase tracking-[.1em] text-chalk transition-brand duration-200 hover:border-gold hover:text-gold"
+              >
+                Explore the Simulator
+              </a>
+            </div>
+          </div>
+          <div class="relative aspect-[4/3] overflow-hidden rounded-sm border rule bg-emerald">
+            <iframe
+              src="/assets/hero-animation.html"
+              title="Face Forward brand identity animation"
+              class="h-full w-full border-0"
+              loading="eager"
+              scrolling="no"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+    <section class="border-b rule bg-emerald/40">
+      <div class="mx-auto max-w-6xl px-5 py-16 lg:px-8">
+        <h2 class="font-display text-2xl font-semibold sm:text-3xl">The Four Pillars</h2>
+        <p class="mt-2 max-w-2xl text-chalk/65">
+          Face Forward is not about winning an argument. It is an invitation to think about the small daily decisions
+          that shape shared public space.
+        </p>
+        <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {pillars.map((p) => (
+            <div class="card-surface rounded-sm p-6">
+              <p class="font-mono text-[11px] uppercase tracking-[.18em] text-gold">{p.name}</p>
+              <p class="mt-3 text-sm leading-relaxed text-chalk/75">{p.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="border-b rule">
+      <div class="mx-auto max-w-6xl px-5 py-16 lg:px-8">
+        <div class="grid gap-10 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
+          <div>
+            <p class="font-mono text-xs uppercase tracking-[.18em] text-gold">Featured Article</p>
+            <h2 class="mt-3 font-display text-3xl font-semibold leading-tight">The Geometry of Courtesy</h2>
+            <p class="mt-4 max-w-xl leading-relaxed text-chalk/70">
+              Why the angle at which we enter a parking space says more about how we treat our neighbors than most of
+              us realize — and what the data on forward and reverse maneuvers actually shows.
+            </p>
+            <a href="/articles/the-geometry-of-courtesy/" class="mt-6 inline-block font-semibold text-gold hover:underline">
+              Read the article &rarr;
+            </a>
+          </div>
+          <div class="card-surface rounded-sm p-8">
+            <p class="metric text-5xl text-gold">7&nbsp;min</p>
+            <p class="mt-2 text-sm uppercase tracking-[.14em] text-chalk/50">read time</p>
+            <div class="mt-6 h-px w-full rule border-t"></div>
+            <p class="mt-6 text-sm leading-relaxed text-chalk/70">
+              Backed by a 10,000-run Monte Carlo kinematic simulation comparing forward and reverse parking maneuvers
+              across pedestrian density, aisle width, and visibility conditions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="border-b rule bg-emerald/40">
+      <div class="mx-auto max-w-6xl px-5 py-16 lg:px-8">
+        <div class="card-surface flex flex-col items-start gap-6 rounded-sm p-8 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 class="font-display text-2xl font-semibold">Join the conversation</h2>
+            <p class="mt-2 max-w-md text-sm leading-relaxed text-chalk/70">
+              One thoughtful note a month. No noise, no pressure — just the occasional idea worth sitting with.
+            </p>
+          </div>
+          <form action="https://buttondown.email/api/emails/embed-subscribe/faceforward" method="post" target="popupwindow"
+            onsubmit="window.open('https://buttondown.email/faceforward', 'popupwindow')"
+            class="flex w-full max-w-sm gap-2 sm:w-auto">
+            <label class="sr-only" for="newsletter-email">Email address</label>
+            <input
+              id="newsletter-email"
+              type="email"
+              name="email"
+              required
+              placeholder="you@example.com"
+              class="w-full rounded-sm border border-chalk/25 bg-forest px-4 py-3 text-sm text-chalk placeholder:text-chalk/40 focus:border-gold focus:outline-none"
+            />
+            <button
+              type="submit"
+              class="whitespace-nowrap rounded-sm bg-gold px-5 py-3 text-sm font-semibold uppercase tracking-[.08em] text-forest transition-brand duration-200 hover:brightness-110"
+            >
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</Layout>

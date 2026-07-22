@@ -1,0 +1,149 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import NavBar from '../../components/NavBar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+---
+<Layout title="Manifesto" description="The Face Forward Manifesto — Small Choices. Better Communities.">
+  <NavBar />
+  <main id="main">
+    <article class="mx-auto max-w-3xl px-5 py-16 lg:px-8 lg:py-24">
+      <header class="no-print mb-12 flex flex-wrap items-center justify-between gap-4 border-b rule pb-8">
+        <div>
+          <p class="font-mono text-xs uppercase tracking-[.22em] text-gold">The Manifesto</p>
+          <h1 class="mt-2 font-display text-4xl font-semibold sm:text-5xl">Small Choices.<br />Better Communities.</h1>
+        </div>
+        <div class="flex gap-3">
+          <button
+            onclick="window.print()"
+            class="rounded-sm bg-gold px-4 py-2 text-xs font-semibold uppercase tracking-[.1em] text-forest transition-brand duration-200 hover:brightness-110"
+          >
+            Print / Save as PDF
+          </button>
+        </div>
+      </header>
+
+      <div class="manifesto prose-manifesto">
+        <p class="lead">Every day, millions of us share parking lots with complete strangers.</p>
+
+        <p>
+          We wait for one another. We slow down for pedestrians. We leave room for shopping carts. We wave another
+          driver into a space. These are small acts of courtesy that make shared spaces work.
+        </p>
+
+        <p>At Face Forward, we believe the way we park is one of those acts.</p>
+
+        <p>
+          This isn&rsquo;t about rules, winning arguments, or criticizing people who make different choices. It is
+          about encouraging thoughtful habits and asking whether small, everyday decisions can have a positive impact
+          when multiplied across millions of drivers.
+        </p>
+
+        <p>Our position is simple:</p>
+
+        <p class="pullquote">
+          Whenever practical, we believe parking face forward is the most considerate, efficient, and intuitive way
+          to use a shared parking space.
+        </p>
+
+        <p>
+          Reasonable people can disagree. We welcome that discussion. Our goal is not to shame or ridicule those who
+          prefer reverse parking, but to present a thoughtful case for why forward parking has served drivers well
+          for generations.
+        </p>
+
+        <h2>Why Face Forward?</h2>
+
+        <h3>1. Efficiency</h3>
+        <p>
+          For many everyday parking situations, driving directly into a parking space is the simpler maneuver.
+          Reversing into a confined space demands precision and often requires corrections. Reversing out opens into
+          the wider aisle &mdash; more room, fewer adjustments.
+        </p>
+        <p>
+          Individually, the difference may only be a few seconds. Across millions of parking events each day, even
+          small improvements in flow benefit everyone.
+        </p>
+
+        <h3>2. Courtesy</h3>
+        <p>
+          Parking lots are shared spaces, and thoughtful parking considers not only our own convenience but also the
+          experience of those around us.
+        </p>
+        <p>
+          When neighboring vehicles face opposite directions, driver&rsquo;s doors frequently align, making it more
+          difficult for both occupants to enter or exit comfortably at the same time. Forward-oriented parking
+          naturally reduces this situation in many common parking layouts and contributes to a smoother experience
+          for everyone sharing the lot.
+        </p>
+
+        <h3>3. Designed for Forward Parking</h3>
+        <p>
+          Much of our parking infrastructure has been designed around the expectation that vehicles will enter spaces
+          from the front. Angled parking, curbside parking, and many traditional parking lot layouts reflect this
+          long-established convention.
+        </p>
+        <p>
+          Forward parking remains the default experience for most drivers and continues to align naturally with the
+          way many public spaces are designed and used.
+        </p>
+
+        <h3>4. Consistency</h3>
+        <p>Predictability benefits everyone.</p>
+        <p>
+          Whether walking through a parking lot, loading groceries, or navigating busy retail centers, consistent
+          behavior makes shared spaces easier to understand and anticipate. Face Forward believes that encouraging
+          common parking practices contributes to a calmer, more intuitive environment for drivers and pedestrians
+          alike.
+        </p>
+
+        <h2>Our Philosophy</h2>
+        <p>
+          Face Forward is built on a simple belief: <strong>small acts of consideration build stronger
+          communities.</strong>
+        </p>
+        <p>
+          Parking may seem like a minor detail, but shared public spaces are shaped by millions of small decisions
+          every day. We believe that thoughtful habits &mdash; however ordinary they may seem &mdash; help create
+          communities that are more efficient, more courteous, and more enjoyable for everyone.
+        </p>
+        <p>
+          We don&rsquo;t expect everyone to agree with us. We simply invite people to think about something most of
+          us have never questioned. Sometimes, progress begins with the smallest decisions.
+        </p>
+        <p class="pullquote">Sometimes, it begins by facing forward.</p>
+      </div>
+    </article>
+  </main>
+  <SiteFooter />
+</Layout>
+
+<style>
+  .prose-manifesto :global(p) {
+    margin-top: 1.5rem;
+    line-height: 1.8;
+    color: rgba(245, 242, 235, 0.85);
+  }
+  .prose-manifesto :global(.lead) {
+    font-size: 1.375rem;
+    font-family: var(--font-display);
+    color: var(--color-chalk);
+  }
+  .prose-manifesto :global(h2) {
+    margin-top: 3rem;
+    font-size: 1.75rem;
+  }
+  .prose-manifesto :global(h3) {
+    margin-top: 2.25rem;
+    font-size: 1.25rem;
+    color: var(--color-gold);
+  }
+  .prose-manifesto :global(.pullquote) {
+    margin: 2.5rem 0;
+    border-left: 3px solid var(--color-gold);
+    padding-left: 1.5rem;
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    line-height: 1.5;
+    color: var(--color-chalk);
+  }
+</style>

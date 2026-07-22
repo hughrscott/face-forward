@@ -1,0 +1,60 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import NavBar from '../../components/NavBar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+
+const products = [
+  { name: 'Double-F Embroidered Cap', price: '$32', blurb: 'Structured six-panel cap, embroidered Double-F mark.' },
+  { name: 'Classic Polo', price: '$58', blurb: 'Pique cotton polo with a subtle chest-embroidered wordmark.' },
+  { name: 'Enamel Pin Set', price: '$14', blurb: 'Three-piece enamel pin set: Double-F, F-bar, and wordmark.' },
+];
+---
+<Layout title="Store" description="Considered merchandise from Face Forward — caps, polos, and pins.">
+  <NavBar />
+  <main id="main">
+    <div class="mx-auto max-w-6xl px-5 py-16 lg:px-8 lg:py-20">
+      <p class="font-mono text-xs uppercase tracking-[.22em] text-gold">The Store</p>
+      <h1 class="mt-2 font-display text-4xl font-semibold sm:text-5xl">Considered merchandise.</h1>
+      <p class="mt-4 max-w-2xl leading-relaxed text-chalk/70">
+        Not novelty products. Pieces you'd wear even if you'd never heard of the movement.
+      </p>
+
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {products.map((p) => (
+          <div class="card-surface flex flex-col rounded-sm p-6">
+            <div class="flex aspect-square items-center justify-center rounded-sm border rule bg-forest">
+              <img src="/assets/logo-wordmark.png" alt={p.name} class="w-2/3 opacity-90" loading="lazy" />
+            </div>
+            <h2 class="mt-5 font-display text-lg font-semibold">{p.name}</h2>
+            <p class="mt-2 flex-1 text-sm leading-relaxed text-chalk/65">{p.blurb}</p>
+            <div class="mt-4 flex items-center justify-between">
+              <span class="metric text-lg text-gold">{p.price}</span>
+              <a
+                href="https://faceforward.printful.me"
+                target="_blank"
+                rel="noreferrer"
+                class="rounded-sm border border-gold/50 px-4 py-2 text-xs font-semibold uppercase tracking-[.1em] text-gold transition-brand duration-200 hover:bg-gold hover:text-forest"
+              >
+                View
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-14 card-surface rounded-sm p-8 text-center">
+        <p class="font-display text-lg font-semibold">Full storefront hosted on Printful</p>
+        <p class="mt-2 text-sm text-chalk/65">Checkout, sizing, and fulfillment are handled by our Printful storefront.</p>
+        <a
+          href="https://faceforward.printful.me"
+          target="_blank"
+          rel="noreferrer"
+          class="mt-5 inline-block rounded-sm bg-gold px-6 py-3 text-sm font-semibold uppercase tracking-[.1em] text-forest transition-brand duration-200 hover:brightness-110"
+        >
+          Shop the Full Collection
+        </a>
+      </div>
+    </div>
+  </main>
+  <SiteFooter />
+</Layout>

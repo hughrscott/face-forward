@@ -38,7 +38,7 @@ def two_proportion_z(a_success: int, a_total: int, b_success: int, b_total: int)
 
 def main() -> None:
     frame = pd.read_csv(CSV_PATH)
-    for column in ["suv_present", "los_blocked", "creep_activated", "proximity_warning", "critical_conflict", "collision"]:
+    for column in ["suv_present", "los_blocked", "creep_activated", "pedestrian_reacted", "proximity_warning", "critical_conflict", "collision"]:
         frame[column] = frame[column].astype(bool).astype(int)
     frame["forward"] = (frame["strategy"] == "forward").astype(int)
     frame["density_c"] = frame["ped_density_per_m"] - frame["ped_density_per_m"].mean()
@@ -56,14 +56,20 @@ def main() -> None:
     }
     for name, group in frame.groupby("strategy"):
         entry: dict[str, object] = {"n": len(group)}
-        for metric in ["total_cycle_time_s", "reaction_time_s"]:
+        for metric in [
+            "total_cycle_time_s",
+            "entry_time_s",
+            "park_time_s",
+            "exit_time_s",
+            "reaction_time_s",
+        ]:
             values = group[metric]
             entry[metric] = {
                 "mean": float(values.mean()),
                 "sd": float(values.std(ddof=1)),
                 "ci95": [float(x) for x in stats.t.interval(0.95, len(values) - 1, loc=values.mean(), scale=stats.sem(values))],
             }
-        for metric in ["proximity_warning", "critical_conflict", "collision", "los_blocked"]:
+        for metric in ["pedestrian_reacted", "proximity_warning", "critical_conflict", "collision", "los_blocked"]:
             successes = int(group[metric].sum())
             entry[metric] = {
                 "count": successes,
@@ -96,7 +102,9 @@ def main() -> None:
     summary["two_proportion_tests"] = proportion_tests
 
     predictors = sm.add_constant(frame[["forward", "density_c", "aisle_c", "suv_present", "forward_suv"]], has_constant="add")
-    conflict_model = sm.Logit(frame["critical_conflict"], predictors).fit(disp=False)
+    conflict_model = sm.GLM(
+        frame["critical_conflict"], predictors, family=sm.families.Binomial()
+    ).fit()
     summary["critical_conflict_logit"] = {
         "terms": {
             term: {
@@ -108,7 +116,7 @@ def main() -> None:
             for term in conflict_model.params.index
         },
         "n": int(conflict_model.nobs),
-        "pseudo_r2": float(conflict_model.prsquared),
+        "pseudo_r2": float(conflict_model.pseudo_rsquared(kind="mcf")),
     }
 
     time_model = sm.OLS(frame["total_cycle_time_s"], predictors).fit()

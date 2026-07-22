@@ -13,8 +13,12 @@ from empirical_pipeline import (
     analyze_observation_frames,
     compute_validation_metrics,
     export_maneuvers_csv,
+    generate_comparison_figure,
     pair_ttc,
+    point_in_polygon,
+    project_point,
     rtsp_candidates,
+    segment_intersects_bbox,
 )
 
 
@@ -32,6 +36,16 @@ def test_pair_ttc_reports_only_collision_course():
 
     assert pair_ttc(vehicle, crossing_pedestrian, collision_radius_m=0.75) == pytest.approx(2.0)
     assert pair_ttc(vehicle, separating_pedestrian, collision_radius_m=0.75) is None
+
+
+def test_calibrated_geometry_primitives():
+    homography = ((0.1, 0.0, 0.0), (0.0, 0.1, 0.0), (0.0, 0.0, 1.0))
+    assert project_point((20.0, 30.0), homography) == pytest.approx((2.0, 3.0))
+    square = ((0.0, 0.0), (4.0, 0.0), (4.0, 4.0), (0.0, 4.0))
+    assert point_in_polygon((2.0, 2.0), square) is True
+    assert point_in_polygon((5.0, 2.0), square) is False
+    assert segment_intersects_bbox((-1.0, 2.0), (5.0, 2.0), (1.0, 1.0, 3.0, 3.0)) is True
+    assert segment_intersects_bbox((-1.0, 5.0), (5.0, 5.0), (1.0, 1.0, 3.0, 3.0)) is False
 
 
 def test_accumulator_emits_one_complete_maneuver():
@@ -123,6 +137,31 @@ def test_csv_contract_has_exact_order_and_boolean_format(tmp_path: Path):
     assert rows[1][1] == "reverse"
     assert rows[1][5:7] == ["False", "True"]
     assert rows[1][8] == ""
+
+
+def test_comparison_figure_is_generated_from_real_csv_inputs(tmp_path: Path):
+    empirical = tmp_path / "empirical.csv"
+    simulation = tmp_path / "simulation.csv"
+    output = tmp_path / "comparison.pdf"
+    empirical.write_text(
+        "strategy,entry_duration_s,conflict_flag\n"
+        "forward,8.0,True\nforward,9.0,False\n"
+        "reverse,10.0,False\nreverse,11.0,False\n",
+        encoding="utf-8",
+    )
+    simulation.write_text(
+        "strategy,entry_duration_s,critical_conflict\n"
+        "forward,7.5,True\nforward,8.5,False\n"
+        "reverse,9.5,False\nreverse,10.5,False\n",
+        encoding="utf-8",
+    )
+
+    summary = generate_comparison_figure(empirical, simulation, output)
+
+    assert output.exists()
+    assert output.stat().st_size > 1_000
+    assert summary["empirical_rows"] == 4
+    assert summary["simulation_rows"] == 4
 
 
 def test_validation_metrics_match_hand_labels_by_id():

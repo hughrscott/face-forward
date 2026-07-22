@@ -1,0 +1,16 @@
+{
+  "source_id": "replace-with-lot-and-camera-id",
+  "homography": [
+    [1.0, 0.0, 0.0],
+    [0.0, 1.0, 0.0],
+    [0.0, 0.0, 1.0]
+  ],
+  "aisle_polygon_m": [[0.0, 0.0], [12.0, 0.0], [12.0, 7.0], [0.0, 7.0]],
+  "stall_polygon_m": [[4.0, 7.0], [6.7, 7.0], [6.7, 12.2], [4.0, 12.2]],
+  "stall_inward_vector": [0.0, 1.0],
+  "aisle_center_m": [5.35, 3.5],
+  "confidence": 0.25,
+  "frame_stride": 2,
+  "adjacent_distance_m": 5.5,
+  "calibration_warning": "EXAMPLE ONLY: replace identity homography and polygons with measured image-to-ground calibration before inference"
+}

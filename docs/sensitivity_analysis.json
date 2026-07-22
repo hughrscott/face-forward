@@ -1,0 +1,128 @@
+{
+  "runs_per_scenario": 3000,
+  "seed": 42,
+  "method": "one-at-a-time \u00b130% sweep with deterministic common seed",
+  "baseline": {
+    "forward_conflict_rate": 0.0006666666666666666,
+    "reverse_conflict_rate": 0.0,
+    "conflict_ratio_forward_to_reverse": 2.0,
+    "forward_mean_entry_time_s": 6.605550733333345,
+    "reverse_mean_entry_time_s": 8.837551399999992
+  },
+  "tornado": [
+    {
+      "parameter": "CREEP_SPEED_MPS",
+      "low": 0.35,
+      "high": 0.65,
+      "low_conflict_ratio": 2.0,
+      "high_conflict_ratio": 18.0,
+      "span": 16.0
+    },
+    {
+      "parameter": "CONFLICT_BRAKING_MPS2",
+      "low": 2.1,
+      "high": 3.9,
+      "low_conflict_ratio": 9.0,
+      "high_conflict_ratio": 2.0,
+      "span": 7.0
+    },
+    {
+      "parameter": "REACTION_MEAN_S",
+      "low": 0.525,
+      "high": 0.975,
+      "low_conflict_ratio": 2.0,
+      "high_conflict_ratio": 2.0,
+      "span": 0.0
+    },
+    {
+      "parameter": "REACTION_STD_S",
+      "low": 0.105,
+      "high": 0.195,
+      "low_conflict_ratio": 2.0,
+      "high_conflict_ratio": 2.0,
+      "span": 0.0
+    },
+    {
+      "parameter": "GEAR_SHIFT_DELAY_S",
+      "low": 0.7,
+      "high": 1.3,
+      "low_conflict_ratio": 2.0,
+      "high_conflict_ratio": 2.0,
+      "span": 0.0
+    },
+    {
+      "parameter": "SCAN_SWEEP_S",
+      "low": 0.35,
+      "high": 0.65,
+      "low_conflict_ratio": 2.0,
+      "high_conflict_ratio": 2.0,
+      "span": 0.0
+    },
+    {
+      "parameter": "PEDESTRIAN_SPEED_MEAN_MPS",
+      "low": 0.98,
+      "high": 1.82,
+      "low_conflict_ratio": 2.0,
+      "high_conflict_ratio": 2.0,
+      "span": 0.0
+    },
+    {
+      "parameter": "PEDESTRIAN_SPEED_STD_MPS",
+      "low": 0.14,
+      "high": 0.26,
+      "low_conflict_ratio": 2.0,
+      "high_conflict_ratio": 2.0,
+      "span": 0.0
+    },
+    {
+      "parameter": "COLLISION_THRESHOLD_M",
+      "low": 0.175,
+      "high": 0.325,
+      "low_conflict_ratio": 2.0,
+      "high_conflict_ratio": 2.0,
+      "span": 0.0
+    }
+  ],
+  "entry_speed_sweep": [
+    {
+      "speed_mps": 0.5,
+      "forward_conflict_rate": 0.0006666666666666666,
+      "reverse_conflict_rate": 0.0,
+      "conflict_ratio_forward_to_reverse": 2.0,
+      "forward_mean_entry_time_s": 12.550544333333324,
+      "reverse_mean_entry_time_s": 13.540082599999987
+    },
+    {
+      "speed_mps": 0.8,
+      "forward_conflict_rate": 0.0006666666666666666,
+      "reverse_conflict_rate": 0.0,
+      "conflict_ratio_forward_to_reverse": 2.0,
+      "forward_mean_entry_time_s": 7.8440892666666615,
+      "reverse_mean_entry_time_s": 8.837551399999992
+    },
+    {
+      "speed_mps": 0.95,
+      "forward_conflict_rate": 0.0006666666666666666,
+      "reverse_conflict_rate": 0.0,
+      "conflict_ratio_forward_to_reverse": 2.0,
+      "forward_mean_entry_time_s": 6.605550733333345,
+      "reverse_mean_entry_time_s": 7.6000428666666595
+    },
+    {
+      "speed_mps": 1.2,
+      "forward_conflict_rate": 0.0006666666666666666,
+      "reverse_conflict_rate": 0.0,
+      "conflict_ratio_forward_to_reverse": 2.0,
+      "forward_mean_entry_time_s": 5.229395266666674,
+      "reverse_mean_entry_time_s": 6.225036066666667
+    },
+    {
+      "speed_mps": 1.5,
+      "forward_conflict_rate": 0.0006666666666666666,
+      "reverse_conflict_rate": 0.0,
+      "conflict_ratio_forward_to_reverse": 2.0,
+      "forward_mean_entry_time_s": 4.183515399999997,
+      "reverse_mean_entry_time_s": 5.1800274666666635
+    }
+  ]
+}

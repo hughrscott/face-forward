@@ -1,0 +1,7 @@
+pytest==9.1.1
+matplotlib==3.11.1
+opencv-python-headless==5.0.0.93
+ultralytics==8.4.104
+supervision==0.27.0
+torch==2.13.0
+torchvision==0.28.0

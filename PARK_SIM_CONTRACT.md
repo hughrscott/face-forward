@@ -1,6 +1,6 @@
 # Project Parkway Simulator Contract
 
-Version: 1.0
+Version: 1.1
 Producer: `park_sim.py`
 Consumers: frontend trajectory visualizer and analysis pipeline
 
@@ -31,7 +31,7 @@ Consumers: frontend trajectory visualizer and analysis pipeline
 - `line_of_sight_blocked(eye, target, obstacles) -> bool`
 - `broad_phase_overlap(a, b) -> bool`
 - `obb_collision(a, b) -> bool`
-- `simulate_maneuver(strategy, rng, stall_width, aisle_width, suv_present, pedestrian_present) -> ManeuverTrace`
+- `simulate_maneuver(strategy, rng, stall_width, aisle_width, suv_present, pedestrian_present, pedestrian_speed_mps=1.4) -> ManeuverTrace`
 - `run_monte_carlo(config) -> list[dict]`
 - `export_results_csv(rows, path) -> None`
 - `canonical_paths() -> list[dict]`
@@ -59,13 +59,17 @@ Optional `--aisle-width`, `--ped-density`, and `--suv-prob` pin those variables 
 One row per trial, UTF-8, comma-delimited, with this exact ordered header:
 
 ```text
-run_id,strategy,seed,stall_width_m,aisle_width_m,ped_density_per_m,suv_probability,suv_present,pedestrian_count,pedestrian_speed_mps,total_cycle_time_s,reaction_time_s,gear_shifts,los_blocked,creep_activated,max_blind_exit_speed_mps,min_pedestrian_distance_m,proximity_warning,required_braking_mps2,critical_conflict,collision
+run_id,strategy,seed,stall_width_m,aisle_width_m,ped_density_per_m,suv_probability,suv_present,pedestrian_count,pedestrian_speed_mps,total_cycle_time_s,entry_time_s,park_time_s,exit_time_s,reaction_time_s,gear_shifts,los_blocked,creep_activated,max_blind_exit_speed_mps,pedestrian_reaction_probability,pedestrian_reacted,min_pedestrian_distance_m,proximity_warning,required_braking_mps2,critical_conflict,collision
 ```
 
 - Empty `pedestrian_speed_mps` / `min_pedestrian_distance_m` means no pedestrian was generated.
 - Boolean fields serialize as `True` or `False`.
+- `total_cycle_time_s = entry_time_s + park_time_s + exit_time_s` (subject only to four-decimal CSV rounding).
+- `pedestrian_reaction_probability` uses `0.7 * (1 - visibility_factor) * (1 - vehicle_speed / 1.2)`; a reacting pedestrian gains 0.75 m clearance scaled by pedestrian speed relative to 1.4 m/s.
+- `required_braking_mps2` is `v²/(2d)`, using exit speed and a 0.05 m numerical floor on `d`.
 - `critical_conflict=True` means required braking is greater than 3.0 m/s².
 - `proximity_warning=True` means modeled pedestrian proximity is below 1.5 m.
+- `collision=True` means modeled pedestrian proximity is below 0.25 m.
 
 ## `canonical_paths.json`
 

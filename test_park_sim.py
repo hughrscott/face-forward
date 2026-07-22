@@ -9,6 +9,7 @@ import random
 import pytest
 
 import park_sim
+from docs.sensitivity_analysis import run_sensitivity_analysis
 
 
 def test_ackermann_straight_line_and_turning_radius():
@@ -111,6 +112,43 @@ def test_forced_suv_obstruction_activates_reverse_exit_creep():
     assert reverse.gear_shifts == 2
 
 
+def test_pedestrian_reaction_probability_and_step_aside_increase_clearance():
+    assert park_sim.pedestrian_reaction_probability(0.0, 0.0, 1.2) == pytest.approx(0.7)
+    assert park_sim.pedestrian_reaction_probability(1.0, 0.5, 1.2) == 0.0
+    assert park_sim.pedestrian_reaction_probability(0.0, 1.2, 1.2) == 0.0
+
+    class FixedRng:
+        def __init__(self, reaction_draw):
+            self.reaction_draw = reaction_draw
+
+        def gauss(self, mean, _std):
+            return mean
+
+        def random(self):
+            return self.reaction_draw
+
+    reacted = park_sim.simulate_maneuver("forward", FixedRng(0.0), 2.7, 6.4, True, True)
+    did_not_react = park_sim.simulate_maneuver("forward", FixedRng(1.0), 2.7, 6.4, True, True)
+    assert reacted.pedestrian_reacted
+    assert not did_not_react.pedestrian_reacted
+    assert reacted.min_pedestrian_distance_m > did_not_react.min_pedestrian_distance_m
+    assert did_not_react.required_braking_mps2 == pytest.approx(
+        did_not_react.max_blind_exit_speed_mps**2
+        / (2.0 * max(did_not_react.min_pedestrian_distance_m, 0.05))
+    )
+
+
+def test_time_components_sum_to_total_and_expose_entry_exit_tradeoff():
+    forward = park_sim.simulate_maneuver("forward", random.Random(5), 2.7, 6.4, True, False)
+    reverse = park_sim.simulate_maneuver("reverse", random.Random(5), 2.7, 6.4, True, False)
+    for trace in (forward, reverse):
+        assert trace.total_time_s == pytest.approx(
+            trace.entry_time_s + trace.park_time_s + trace.exit_time_s
+        )
+    assert forward.entry_time_s < reverse.entry_time_s
+    assert forward.exit_time_s > reverse.exit_time_s
+
+
 def _conflict_rate(rows):
     return sum(row["critical_conflict"] for row in rows) / len(rows)
 
@@ -189,6 +227,26 @@ def test_cli_exposes_required_flags():
         "--export-json",
     ):
         assert flag in help_text
+
+
+def test_sensitivity_analysis_covers_required_parameters_and_speed_bounds(tmp_path):
+    figure = tmp_path / "tornado.svg"
+    output = tmp_path / "sensitivity.json"
+    result = run_sensitivity_analysis(runs=200, figure_path=figure, output_path=output)
+    required = {
+        "REACTION_MEAN_S",
+        "REACTION_STD_S",
+        "GEAR_SHIFT_DELAY_S",
+        "CREEP_SPEED_MPS",
+        "SCAN_SWEEP_S",
+        "PEDESTRIAN_SPEED_MEAN_MPS",
+        "COLLISION_THRESHOLD_M",
+        "CONFLICT_BRAKING_MPS2",
+    }
+    assert required <= {entry["parameter"] for entry in result["tornado"]}
+    assert {entry["speed_mps"] for entry in result["entry_speed_sweep"]} == {0.5, 0.8, 0.95, 1.2, 1.5}
+    assert figure.stat().st_size > 0
+    assert output.stat().st_size > 0
 
 
 def test_delivered_artifacts_have_required_cardinality():

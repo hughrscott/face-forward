@@ -28,6 +28,14 @@ CREEP_SPEED_MPS = 0.5
 PROXIMITY_THRESHOLD_M = 1.5
 COLLISION_THRESHOLD_M = 0.25
 CONFLICT_BRAKING_MPS2 = 3.0
+MAX_EXIT_SPEED_MPS = 1.2
+BLOCKED_VEHICLE_VISIBILITY_FACTOR = 0.55
+PEDESTRIAN_STEP_ASIDE_M = 0.75
+FORWARD_ENTRY_SPEED_MPS = 0.95
+REVERSE_ENTRY_SPEED_MPS = 0.8
+BLOCKED_OBSERVATION_DELAY_S = 2.0
+PEDESTRIAN_SPEED_MEAN_MPS = 1.4
+PEDESTRIAN_SPEED_STD_MPS = 0.2
 
 
 @dataclass(frozen=True)
@@ -167,12 +175,18 @@ class ManeuverTrace:
     strategy: str
     phases: tuple[str, ...]
     total_time_s: float
+    entry_time_s: float
+    park_time_s: float
+    exit_time_s: float
     reaction_time_s: float
     gear_shifts: int
     line_of_sight_blocked: bool
     creep_activated: bool
     max_blind_exit_speed_mps: float
+    pedestrian_reaction_probability: float
+    pedestrian_reacted: bool
     proximity_warning: bool
+    required_braking_mps2: float
     critical_conflict: bool
     collision: bool
     min_pedestrian_distance_m: float | None
@@ -182,6 +196,23 @@ class ManeuverTrace:
 def sample_reaction_time(rng: random.Random) -> float:
     """Draw a positive reaction latency from the specified Gaussian."""
     return max(0.1, rng.gauss(REACTION_MEAN_S, REACTION_STD_S))
+
+
+def pedestrian_reaction_probability(
+    visibility_factor: float,
+    vehicle_speed_mps: float,
+    maximum_speed_mps: float = MAX_EXIT_SPEED_MPS,
+) -> float:
+    """Probability that a pedestrian yields or steps aside before closest approach.
+
+    ``visibility_factor`` is the fraction of vehicle visibility lost to occlusion:
+    zero is fully visible and one is fully hidden.
+    """
+    if maximum_speed_mps <= 0.0:
+        raise ValueError("maximum_speed_mps must be positive")
+    visibility = min(1.0, max(0.0, visibility_factor))
+    speed_fraction = min(1.0, max(0.0, vehicle_speed_mps / maximum_speed_mps))
+    return 0.7 * (1.0 - visibility) * (1.0 - speed_fraction)
 
 
 def _kinematic_trajectory(strategy: str, aisle_width: float, points: int = 31) -> tuple[VehicleState, ...]:
@@ -224,6 +255,7 @@ def simulate_maneuver(
     aisle_width: float,
     suv_present: bool,
     pedestrian_present: bool,
+    pedestrian_speed_mps: float = PEDESTRIAN_SPEED_MEAN_MPS,
 ) -> ManeuverTrace:
     """Execute one full park-and-exit state machine.
 
@@ -235,6 +267,8 @@ def simulate_maneuver(
         raise ValueError("strategy must be 'forward' or 'reverse'")
     if stall_width <= 0.0 or aisle_width <= 0.0:
         raise ValueError("stall_width and aisle_width must be positive")
+    if pedestrian_speed_mps <= 0.0:
+        raise ValueError("pedestrian_speed_mps must be positive")
 
     if strategy == "forward":
         phases = ("approach", "enter_forward", "parked", "shift_to_reverse", "scan", "exit_reverse", "complete")
@@ -248,14 +282,26 @@ def simulate_maneuver(
     adjacent_suv = OBB(stall_width, 1.6, SUV_WIDTH_M, SUV_LENGTH_M, math.pi / 2.0)
     blocked = strategy == "forward" and suv_present and line_of_sight_blocked(eye, sight_target, [adjacent_suv])
     creep = blocked
-    exit_speed = CREEP_SPEED_MPS if creep else 1.2
+    exit_speed = CREEP_SPEED_MPS if creep else MAX_EXIT_SPEED_MPS
     reaction_time = sample_reaction_time(rng)
 
     min_distance: float | None = None
+    pedestrian_reaction_p = 0.0
+    pedestrian_reacted = False
     proximity = critical = collision = False
+    required_deceleration = 0.0
     if pedestrian_present:
         visibility_penalty = 0.9 if blocked else 0.0
         min_distance = max(0.0, rng.gauss(2.1 - visibility_penalty, 0.65))
+        vehicle_visibility_factor = BLOCKED_VEHICLE_VISIBILITY_FACTOR if blocked else 0.0
+        pedestrian_reaction_p = pedestrian_reaction_probability(
+            vehicle_visibility_factor, exit_speed
+        )
+        pedestrian_reacted = rng.random() < pedestrian_reaction_p
+        if pedestrian_reacted:
+            min_distance += PEDESTRIAN_STEP_ASIDE_M * (
+                pedestrian_speed_mps / PEDESTRIAN_SPEED_MEAN_MPS
+            )
         proximity = min_distance < PROXIMITY_THRESHOLD_M
         stopping_distance = max(min_distance, 0.05)
         required_deceleration = exit_speed**2 / (2.0 * stopping_distance)
@@ -271,23 +317,32 @@ def simulate_maneuver(
             for s in path
         )
     path_length = sum(math.hypot(b.x - a.x, b.y - a.y) for a, b in zip(path, path[1:]))
-    mean_speed = 0.8 if strategy == "reverse" else 0.95
-    travel_time = path_length / mean_speed
+    one_way_path_length = path_length / 2.0
+    entry_speed = REVERSE_ENTRY_SPEED_MPS if strategy == "reverse" else FORWARD_ENTRY_SPEED_MPS
+    initial_shift_time = GEAR_SHIFT_DELAY_S if strategy == "reverse" else 0.0
+    entry_time = one_way_path_length / entry_speed + initial_shift_time
+    park_time = GEAR_SHIFT_DELAY_S + reaction_time
     scan_time = SCAN_SWEEP_S if strategy == "forward" else 0.0
-    if blocked:
-        travel_time += 2.0
-    total_time = travel_time + gear_shifts * GEAR_SHIFT_DELAY_S + reaction_time + scan_time
+    observation_time = BLOCKED_OBSERVATION_DELAY_S if blocked else 0.0
+    exit_time = one_way_path_length / exit_speed + scan_time + observation_time
+    total_time = entry_time + park_time + exit_time
 
     return ManeuverTrace(
         strategy=strategy,
         phases=phases,
         total_time_s=total_time,
+        entry_time_s=entry_time,
+        park_time_s=park_time,
+        exit_time_s=exit_time,
         reaction_time_s=reaction_time,
         gear_shifts=gear_shifts,
         line_of_sight_blocked=blocked,
         creep_activated=creep,
         max_blind_exit_speed_mps=exit_speed,
+        pedestrian_reaction_probability=pedestrian_reaction_p,
+        pedestrian_reacted=pedestrian_reacted,
         proximity_warning=proximity,
+        required_braking_mps2=required_deceleration,
         critical_conflict=critical,
         collision=collision,
         min_pedestrian_distance_m=min_distance,
@@ -329,11 +384,16 @@ RESULT_FIELDS = (
     "pedestrian_count",
     "pedestrian_speed_mps",
     "total_cycle_time_s",
+    "entry_time_s",
+    "park_time_s",
+    "exit_time_s",
     "reaction_time_s",
     "gear_shifts",
     "los_blocked",
     "creep_activated",
     "max_blind_exit_speed_mps",
+    "pedestrian_reaction_probability",
+    "pedestrian_reacted",
     "min_pedestrian_distance_m",
     "proximity_warning",
     "required_braking_mps2",
@@ -365,7 +425,11 @@ def run_monte_carlo(config: SimulationConfig) -> list[dict[str, object]]:
         suv_probability = config.suv_prob if config.suv_prob is not None else master.uniform(0.0, 0.8)
         suv_present = master.random() < suv_probability
         pedestrian_count = _sample_poisson(ped_density * aisle_width, master)
-        pedestrian_speed = max(0.2, master.gauss(1.4, 0.2)) if pedestrian_count else None
+        pedestrian_speed = (
+            max(0.2, master.gauss(PEDESTRIAN_SPEED_MEAN_MPS, PEDESTRIAN_SPEED_STD_MPS))
+            if pedestrian_count
+            else None
+        )
         trace = simulate_maneuver(
             strategy,
             master,
@@ -373,13 +437,7 @@ def run_monte_carlo(config: SimulationConfig) -> list[dict[str, object]]:
             aisle_width,
             suv_present,
             pedestrian_count > 0,
-        )
-
-        required_braking = (
-            0.0
-            if trace.min_pedestrian_distance_m is None
-            else trace.max_blind_exit_speed_mps**2
-            / (2.0 * max(trace.min_pedestrian_distance_m, 0.05))
+            pedestrian_speed if pedestrian_speed is not None else PEDESTRIAN_SPEED_MEAN_MPS,
         )
 
         rows.append(
@@ -395,14 +453,19 @@ def run_monte_carlo(config: SimulationConfig) -> list[dict[str, object]]:
                 "pedestrian_count": pedestrian_count,
                 "pedestrian_speed_mps": None if pedestrian_speed is None else round(pedestrian_speed, 4),
                 "total_cycle_time_s": round(trace.total_time_s, 4),
+                "entry_time_s": round(trace.entry_time_s, 4),
+                "park_time_s": round(trace.park_time_s, 4),
+                "exit_time_s": round(trace.exit_time_s, 4),
                 "reaction_time_s": round(trace.reaction_time_s, 4),
                 "gear_shifts": trace.gear_shifts,
                 "los_blocked": trace.line_of_sight_blocked,
                 "creep_activated": trace.creep_activated,
                 "max_blind_exit_speed_mps": round(trace.max_blind_exit_speed_mps, 4),
+                "pedestrian_reaction_probability": round(trace.pedestrian_reaction_probability, 5),
+                "pedestrian_reacted": trace.pedestrian_reacted,
                 "min_pedestrian_distance_m": None if trace.min_pedestrian_distance_m is None else round(trace.min_pedestrian_distance_m, 4),
                 "proximity_warning": trace.proximity_warning,
-                "required_braking_mps2": round(required_braking, 4),
+                "required_braking_mps2": round(trace.required_braking_mps2, 4),
                 "critical_conflict": trace.critical_conflict,
                 "collision": trace.collision,
             }

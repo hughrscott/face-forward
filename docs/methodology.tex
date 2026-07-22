@@ -27,7 +27,7 @@ A Comparative Kinematics and Safety Simulation Study}
 \maketitle
 
 \begin{abstract}
-We compare nose-in (forward) and back-in (reverse) parking as complete approach--park--exit cycles in a two-dimensional stochastic simulation. The model combines non-holonomic Ackermann kinematics, finite-segment line-of-sight tests against adjacent sport-utility vehicles, explicit cognitive and mechanical latencies, and pedestrian encounters generated across realistic aisle widths and densities. In 10,000 seeded trials, forward parking completed the full cycle in 16.224 s (95\% CI 16.195--16.252), compared with 18.443 s (95\% CI 18.432--18.454) for reverse parking, a mean difference of $-2.220$ s ($p<10^{-300}$). This temporal advantage was accompanied by a critical-conflict rate of 14.08\% for forward parking versus 7.90\% for reverse parking ($p=5.10\times10^{-23}$), and a collision rate of 1.08\% versus 0.44\% ($p=2.29\times10^{-4}$). A logistic model found higher critical-conflict odds for the forward strategy (odds ratio 1.83, 95\% coefficient interval 0.423--0.781) after controlling for pedestrian density, aisle width, adjacent-SUV presence, and the strategy--SUV interaction. The results expose a structural asymmetry: the faster maneuver postpones its most visibility-limited motion until the exit, when pedestrians occupy the shared aisle. The apparent civility of a parked vehicle therefore depends less on its stationary orientation than on where the maneuver assigns uncertainty.
+We compare nose-in (forward) and back-in (reverse) parking as complete approach--park--exit cycles in a two-dimensional stochastic simulation. The model combines non-holonomic Ackermann kinematics, finite-segment line-of-sight tests against adjacent sport-utility vehicles, explicit cognitive and mechanical latencies, and pedestrian encounters generated across realistic aisle widths and densities. Unlike an earlier parametric event layer, every reported warning, conflict, and collision is now a deterministic classification of the maneuver trace's sampled minimum pedestrian distance and vehicle speed. In 10,000 seeded trials, forward parking entered faster (6.606 versus 8.838 s) but exited more slowly (9.516 versus 5.225 s), producing total times of 17.875 and 15.814 s. Forward and reverse critical-conflict rates were 0.08\% and 0.16\%, respectively ($p=0.248$); physical-overlap rates were 1.64\% and 0.20\% ($p=4.65\times10^{-14}$). The refactored results preserve the structural visibility asymmetry while showing that its consequence depends strongly on whether safety is measured as emergency braking or geometric overlap.
 \end{abstract}
 
 \section{Introduction}
@@ -162,14 +162,12 @@ with one modeled gear shift. The reverse sequence is
 \rightarrow\textsc{Parked}\rightarrow\textsc{Shift}_{R\to D}
 \rightarrow\textsc{Exit}_{D}\rightarrow\textsc{Complete},
 \end{equation}
-with two shifts. Nose-first exit is treated as unobstructed in the present geometry. The total time is
+with two shifts. Nose-first exit is treated as unobstructed in the present geometry. We disaggregate the cycle into entry, parked transition, and exit components. The one-way geometric path length is $\mathcal{L}/2$. Entry uses $\bar v_F=0.95$ m/s or $\bar v_R=0.80$ m/s, with the reverse-entry shift charged to entry. The parked component contains one post-entry shift and the sampled reaction latency. Exit uses 1.2 m/s when unobstructed and 0.5 m/s under blocked forward-exit creep. Thus
 \begin{equation}
- T_{\mathrm{total}}=\frac{\mathcal{L}}{\bar v_s}
- +n_{\mathrm{shift}}\tau_{\mathrm{gear}}+\tau_{\mathrm{react}}
- +I_{s=F}\tau_{\mathrm{scan}}+2I_{\mathrm{blocked}},
+ T_{\mathrm{total}}=T_{\mathrm{entry}}+T_{\mathrm{park}}+T_{\mathrm{exit}},
 \label{eq:time}
 \end{equation}
-where $\mathcal{L}$ is integrated path length, $\bar v_F=0.95$ m/s, $\bar v_R=0.80$ m/s, and $I$ denotes an indicator.
+where $T_{\mathrm{entry}}=(\mathcal{L}/2)/\bar v_s+I_{s=R}\tau_{\mathrm{gear}}$, $T_{\mathrm{park}}=\tau_{\mathrm{gear}}+\tau_{\mathrm{react}}$, and $T_{\mathrm{exit}}=(\mathcal{L}/2)/v_{\mathrm{exit}}+I_{s=F}\tau_{\mathrm{scan}}+2I_{\mathrm{blocked}}$.
 
 \section{Monte Carlo Protocol}
 
@@ -187,15 +185,15 @@ The experiment comprises 10,000 deterministic pseudorandom trials with seed 42 a
 \end{align}
 Stall width is fixed at 2.7 m. The trajectory engine logs total cycle time, reaction time, shifts, occlusion and creep states, pedestrian proximity, required braking, critical conflict, and collision.
 
-The event generator uses a Poisson exposure interpretation. The probability of at least one proximity warning is
+When at least one pedestrian is present, the maneuver samples a closest-approach distance with standard deviation 0.65 m and mean 2.1 m, reduced by 0.9 m under blocked line of sight. A pedestrian can stop, yield, or step aside. Its Bernoulli reaction probability is
 \begin{equation}
-  \Prob(W=1)=1-\exp(-0.55\lambda A).
+ p_{\mathrm{react}}=0.7(1-f_{\mathrm{occ}})\left(1-\frac{v}{v_{\max}}\right),
 \end{equation}
-For a critical conflict,
+where $f_{\mathrm{occ}}=0.55$ for the blocked reversing vehicle and 0 otherwise, $v_{\max}=1.2$ m/s, and the expression is clipped to $[0,1]$. A reaction adds 0.75 m of clearance, scaled by pedestrian speed relative to 1.4 m/s. Let $d$ be the resulting minimum distance and $v$ the exit speed. Required braking is
 \begin{equation}
-  \Prob(C=1)=1-\exp[-\lambda A\,\kappa_s\,\nu],
+ a_{\mathrm{req}}=\frac{v^2}{2\max(d,0.05)}.
 \end{equation}
-where $\kappa_F=0.13$, $\kappa_R=0.075$, and $\nu=1.35$ during a blocked line of sight and 1 otherwise. Conditional on a critical conflict, required braking is sampled uniformly from 3.0 to 5.5 m/s$^2$; otherwise it is sampled uniformly from 0 to 3.0 m/s$^2$. Collision probability is $0.06\Prob(C=1)$. Independent event uniforms are generated from a run-specific common deterministic seed, making the dataset exactly reproducible.
+The trace is classified as a proximity warning when $d<1.5$ m, a critical conflict when $a_{\mathrm{req}}>3.0$ m/s$^2$, and a collision (physical overlap) when $d<0.25$ m. No later stochastic layer overwrites these trace outcomes.
 
 \subsection{Statistical analysis}
 
@@ -213,40 +211,55 @@ where $F_i$ denotes forward parking and $S_i$ denotes adjacent-SUV presence. We 
 
 \subsection{Unadjusted outcomes}
 
-Table~\ref{tab:results} reports the principal estimates. Forward parking was 2.220 s faster over the complete cycle (95\% CI for forward minus reverse, $-2.250$ to $-2.189$ s; Welch $t=-142.95$, df $=6423.37$, $p<10^{-300}$). Relative to the reverse strategy, the forward critical-conflict rate was 78.2\% higher and its collision rate was 145.5\% higher. Proximity-warning rates did not differ ($z=-0.42$, $p=0.672$), indicating that the safety difference arises from how encounters are resolved rather than a difference in encounter frequency.
+Table~\ref{tab:time} exposes the bimodal timing result. Forward parking saved 2.232 s during entry but spent 4.291 s longer exiting. Its complete cycle was therefore 2.061 s slower (95\% CI for forward minus reverse, 1.934--2.189 s; Welch $t=31.71$, df $=5054.12$, $p=1.85\times10^{-201}$).
 
 \begin{table}[ht]
 \centering
-\caption{Monte Carlo outcomes by parking strategy. Confidence intervals are 95\%; binary intervals use the Wilson method.}
+\caption{Disaggregated maneuver time by parking strategy. Values are means with 95\% confidence intervals in seconds.}
+\label{tab:time}
+\begin{tabular}{lcc}
+\toprule
+Component & Forward ($n=5000$) & Reverse ($n=5000$)\\
+\midrule
+Entry & 6.606 [6.601, 6.610] & 8.838 [8.833, 8.843]\\
+Park/shift & 1.753 [1.749, 1.757] & 1.750 [1.746, 1.755]\\
+Exit & 9.516 [9.389, 9.643] & 5.225 [5.222, 5.229]\\
+Total cycle & 17.875 [17.748, 18.002] & 15.814 [15.804, 15.823]\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Physics-derived safety outcomes by parking strategy. Confidence intervals are 95\% Wilson intervals.}
 \label{tab:results}
 \begin{tabular}{lcc}
 \toprule
 Outcome & Forward ($n=5000$) & Reverse ($n=5000$)\\
 \midrule
-Total cycle time, s & 16.224 [16.195, 16.252] & 18.443 [18.432, 18.454]\\
-Reaction time, s & 0.747 [0.743, 0.751] & 0.751 [0.747, 0.755]\\
-Proximity warning & 2169 (43.38\%) & 2190 (43.80\%)\\
-Critical conflict & 704 (14.08\%) & 395 (7.90\%)\\
-Collision & 54 (1.08\%) & 22 (0.44\%)\\
-Blocked line of sight & 1910 (38.20\%) & 0 (0.00\%)\\
+Pedestrian reacted & 220 (4.40\%) & 0 (0.00\%)\\
+Proximity warning & 1112 (22.24\%) & 560 (11.20\%)\\
+Critical conflict & 4 (0.08\%) & 8 (0.16\%)\\
+Physical overlap & 82 (1.64\%) & 10 (0.20\%)\\
+Blocked line of sight & 2032 (40.64\%) & 0 (0.00\%)\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The critical-conflict difference was statistically separated ($z=9.88$, $p=5.10\times10^{-23}$). The collision difference was also separated ($z=3.68$, $p=2.29\times10^{-4}$). The 95\% Wilson intervals were 13.14--15.07\% versus 7.18--8.68\% for critical conflict, and 0.83--1.41\% versus 0.29--0.67\% for collision.
+The critical-conflict difference was not statistically separated ($z=-1.16$, $p=0.248$); its Wilson intervals were 0.031--0.206\% and 0.081--0.315\%. Physical overlap was higher for forward parking ($z=7.54$, $p=4.65\times10^{-14}$), with intervals 1.323--2.031\% and 0.109--0.368\%. The apparent inversion between conflict and overlap follows directly from the definitions: blocked forward exits creep at 0.5 m/s, so a very small clearance can satisfy the geometric-overlap threshold without requiring more than 3.0 m/s$^2$ braking.
 
-\subsection{Regression response curves}
+\subsection{Sensitivity and speed calibration}
 
-The fitted coefficients in Equation~\ref{eq:logit} were $\hat\beta_F=0.602$ ($p=4.39\times10^{-11}$), $\hat\beta_\lambda=6.856$ per pedestrian/m ($p=1.02\times10^{-47}$), $\hat\beta_A=0.233$ per meter ($p=4.20\times10^{-4}$), $\hat\beta_S=0.244$ ($p=0.0215$), and $\hat\beta_{FS}=0.160$ ($p=0.236$). The adjusted forward-strategy odds ratio was $\exp(0.602)=1.83$. Adjacent-SUV presence increased baseline odds by 27.6\%; the additional forward--SUV interaction was not separately resolved after accounting for the simulator's main effects. McFadden's pseudo-$R^2$ was 0.052, which is consistent with stochastic Bernoulli event generation around a monotone exposure surface.
+We varied reaction-time mean and standard deviation, gear-shift delay, creep speed, scan duration, pedestrian-speed mean and standard deviation, overlap threshold, and conflict-braking threshold one at a time by $\pm30\%$, rerunning 3,000 deterministic trials per bound. Figure~\ref{fig:tornado} reports movement in the continuity-corrected forward/reverse conflict ratio. Creep speed and the braking threshold dominated; timing-only parameters did not move the conflict classification. Because critical conflicts are rare, ratio magnitudes are unstable and should be read as threshold diagnostics rather than effect estimates.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.88\linewidth]{regression_curves.pdf}
-\caption{Critical-conflict probabilities predicted by Equation~\ref{eq:logit} across pedestrian density, at an aisle width of 6.35 m. Solid lines denote an adjacent SUV and dashed lines denote no adjacent SUV. The curves summarize the simulation model; they are not estimates from observed crashes.}
-\label{fig:curves}
+\includegraphics[width=0.92\linewidth]{sensitivity_tornado.pdf}
+\caption{One-at-a-time sensitivity of the forward/reverse critical-conflict ratio to $\pm30\%$ parameter changes. Blue and red bars denote the low and high bounds.}
+\label{fig:tornado}
 \end{figure}
 
-The cycle-time model had $R^2=0.987$. At centered environmental values, forward parking reduced cycle time by 2.981 s (95\% CI $-2.989$ to $-2.973$) before the forward--SUV interaction. A blocked forward exit added 1.998 s (95\% CI 1.986--2.010), recovering the explicit observation penalty in Equation~\ref{eq:time}. Each additional meter of aisle width added 0.674 s through the longer turning path. Pedestrian density had no material cycle-time coefficient ($p=0.669$), because the current controller records safety events without adding avoidance delays beyond the specified occlusion penalty.
+No defensible field citation for the strategy-specific 0.80 and 0.95 m/s entry constants was identified in the project evidence base. We therefore swept common entry speed from 0.5 to 1.5 m/s. Forward entry remained faster at every bound because reverse entry retains its initial shift: mean forward/reverse entry times ranged from 12.551/13.540 s at 0.5 m/s to 4.184/5.180 s at 1.5 m/s. Safety outcomes were unchanged because entry speed is not used to classify aisle-exit events.
 
 \section{Discussion}
 
@@ -254,17 +267,17 @@ The cycle-time model had $R^2=0.987$. At centered environmental values, forward 
 
 The simulation distinguishes two ideas that are often combined under the word ``safety.'' Systemic predictability concerns what other aisle users can infer from the maneuver. A nose-first departing vehicle exposes its driver, heading, and intended direction earlier. Localized visibility concerns what the driver can see from one position. An adjacent SUV can make localized visibility poor even when the driver scans correctly; scanning cannot reveal a ray that geometry blocks.
 
-Reverse parking reallocates effort from a high-exposure state to a lower-exposure state. The extra shift and slower entry increase total time, but the eventual exit occurs nose-first. Forward parking saves time in the full modeled cycle, yet 38.2\% of forward trials began reverse departure behind a blocked line of sight. Creep limits the energy and speed of this motion, but it does not eliminate the encounter process. Thus a local mitigation---slower blind movement---does not fully recover the systemic benefit of arranging the vehicle to depart visibly.
+Reverse parking reallocates effort from a high-exposure state to a lower-exposure state. The extra shift and slower entry are visible in Table~\ref{tab:time}, while its nose-first exit is consistently shorter. In 40.64\% of forward trials, reverse departure began behind a blocked line of sight. Creep sharply limits required braking at those exits but does not eliminate geometric overlap in the sampled closest-approach model. The two safety metrics therefore answer different questions and must not be collapsed into one headline rate.
 
-The unchanged proximity-warning rate is particularly informative. Both strategies inhabit the same pedestrian environment and therefore encounter pedestrians at similar frequencies. Their conflict rates diverge because the strategy changes visibility and risk conditional on exposure. Parking orientation is not modeled as a moral characteristic of the stationary vehicle. It is a scheduling decision about when to perform the least observable portion of a constrained trajectory.
+The changed proximity-warning rate is also informative. Both strategies draw from the same pedestrian-density process, but blocked forward exits shift the minimum-distance distribution downward before reaction. Parking orientation is not modeled as a moral characteristic of the stationary vehicle. It is a scheduling decision about when to perform the least observable portion of a constrained trajectory.
 
 \subsection{Interpretation of statistical significance}
 
-The very small $p$-values reflect two facts: the simulated effects are large relative to within-model variation, and the experiment contains 10,000 trials. They do not establish that the exact effect sizes hold in every parking facility. In a deterministic scientific program, significance tests serve as sensitivity diagnostics: they show whether pseudorandom variation under the stated protocol can plausibly reverse the modeled ordering. External validity requires observed trajectories, driver heterogeneity, and independently measured conflict outcomes.
+The very small $p$-values for time and physical overlap reflect both model separation and 10,000 trials. By contrast, only 12 emergency-braking conflicts occurred, so adjusted logistic coefficients are poorly identified and are retained in the machine-readable summary only as diagnostics. None of these tests establishes that exact effect sizes hold in every parking facility. External validity requires observed trajectories, driver heterogeneity, and independently measured conflict outcomes.
 
 \section{Limitations and Reproducibility}
 
-The study is synthetic by design. First, the bicycle model omits tire dynamics, steering-rate limits, vehicle body overhang, and multi-point turns. Second, the planar occlusion test treats an SUV as an opaque ground-plane polygon and does not model windows, cameras, mirrors, pedestrian height, or partial visibility. Third, only forward reverse-exit is eligible for occlusion in the current scenario geometry. Fourth, pedestrian events are generated from calibrated functional forms rather than field observations; the data therefore validate implementation consistency, not real-world incidence. Fifth, alternating strategy assignment balances counts but does not pair strategies on identical environmental draws. Finally, the simulator's collision indicator is probabilistically linked to modeled conflict rather than obtained by time-continuous vehicle--pedestrian contact for every trial.
+The study is synthetic by design. First, the bicycle model omits tire dynamics, steering-rate limits, vehicle body overhang, and multi-point turns. Second, the planar occlusion test treats an SUV as an opaque ground-plane polygon and does not model windows, cameras, mirrors, pedestrian height, or partial visibility. Third, only forward reverse-exit is eligible for occlusion in the current scenario geometry. Fourth, the 0.65 m distance dispersion, 0.9 m occlusion penalty, 0.55 visibility-loss factor, and 0.75 m step-aside clearance are assumptions rather than field calibrations; the sensitivity analysis diagnoses their consequences but does not validate them. Fifth, the 0.80 and 0.95 m/s entry speeds lack a field citation, so only their bounded robustness is claimed. Sixth, alternating strategy assignment balances counts but does not pair strategies on identical environmental draws. Finally, ``collision'' is a threshold on sampled minimum separation, not time-continuous polygonal vehicle--pedestrian contact.
 
 Reproduction requires Python 3.11 or later. Running
 \begin{verbatim}
@@ -272,10 +285,10 @@ python3 park_sim.py --seed 42 --runs 10000 \
   --export-csv simulation_results.csv \
   --export-json canonical_paths.json
 \end{verbatim}
-regenerates the primary dataset. The companion script \texttt{docs/analyze\_results.py} reads the CSV, fits the reported models, writes \texttt{statistical\_summary.json}, and creates Figure~\ref{fig:curves}. All state variables use SI units; random seed, sampling ranges, constants, and output fields are specified above and in the simulator contract.
+regenerates the primary dataset. The companion script \texttt{docs/analyze\_results.py} writes \texttt{statistical\_summary.json}; \texttt{docs/sensitivity\_analysis.py} writes the tornado figure and its JSON source. All state variables use SI units; random seed, sampling ranges, constants, and output fields are specified above and in the simulator contract.
 
 \section{Conclusion}
 
-Within the specified shared-space model, forward parking is faster and reverse parking is safer on exit. The distinction is mathematically traceable: forward parking removes one early shift but can place a reverse-moving driver behind an adjacent-vehicle visibility shadow, whereas reverse parking pays the mechanical delay before the stall and exits toward the aisle with an unobstructed modeled view. The result is a general design principle disguised as parking etiquette: when uncertainty cannot be removed, schedule it where visibility is greatest and exposure is lowest.
+Within the specified shared-space model, forward parking wins on entry and loses on exit; blocked creep makes it slower over the complete cycle. Reverse parking has fewer modeled physical overlaps, while the emergency-braking conflict rates are too sparse to distinguish. These outcomes now emerge from one kinematic and pedestrian-distance trace rather than from a second parametric event generator. The remaining conclusion is appropriately narrower: maneuver orientation schedules where visibility and motion uncertainty are paid, and the chosen safety metric determines how that scheduling is judged.
 
 \end{document}

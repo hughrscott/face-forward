@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;900&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#131316;font-family:"Space Grotesk",sans-serif;}
+a{color:#E8B62B}a:hover{color:#F2F0EA}
+@keyframes sTextOut{0%,15%{transform:none;opacity:1;animation-timing-function:cubic-bezier(.55,0,.85,.36)}36%,100%{transform:translateX(660px);opacity:0}}
+@keyframes sTextOut2{0%,19%{transform:none;opacity:1;animation-timing-function:cubic-bezier(.55,0,.85,.36)}40%,100%{transform:translateX(660px);opacity:0}}
+@keyframes sSlot{0%,30%{opacity:0}42%,100%{opacity:1}}
+@keyframes sCarA{0%,32%{transform:translateX(90vw);animation-timing-function:cubic-bezier(.15,.6,.15,1)}55%,100%{transform:none}}
+@keyframes sCarB{0%,38%{transform:translateX(90vw);animation-timing-function:cubic-bezier(.15,.6,.15,1)}61%,100%{transform:none}}
+@keyframes sCarC{0%,44%{transform:translateX(90vw);animation-timing-function:cubic-bezier(.15,.6,.15,1)}67%,100%{transform:none}}
+@keyframes sCarD{0%,50%{transform:translateX(90vw);animation-timing-function:cubic-bezier(.15,.6,.15,1)}73%,100%{transform:none}}
+@keyframes sTag{0%,76%{opacity:0;transform:translateY(14px)}90%,100%{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="min-width:1240px;color:#F2F0EA">
+<div style="display:flex;align-items:center;justify-content:space-between;height:76px;padding:0 48px;border-bottom:1px solid rgba(242,240,234,.08)">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="display:flex;gap:3px">
+      <div style="position:relative;width:13px;height:20px">
+        <div style="position:absolute;left:0;top:0;width:4px;height:20px;background:#E8B62B"></div>
+        <div style="position:absolute;left:4px;top:0;width:9px;height:4px;background:#E8B62B"></div>
+        <div style="position:absolute;left:4px;top:8px;width:9px;height:4px;background:#E8B62B"></div>
+      </div>
+      <div style="position:relative;width:13px;height:20px">
+        <div style="position:absolute;left:0;top:0;width:4px;height:20px;background:#E8B62B"></div>
+        <div style="position:absolute;left:4px;top:0;width:9px;height:4px;background:#E8B62B"></div>
+        <div style="position:absolute;left:4px;top:8px;width:9px;height:4px;background:#E8B62B"></div>
+      </div>
+    </div>
+    <div style="font:900 16px Archivo,sans-serif;letter-spacing:.06em">FACEFORWARD</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:36px">
+    <a href="#position" style="font:500 13px 'Space Grotesk';letter-spacing:.12em;color:rgba(242,240,234,.7);text-decoration:none">THE POSITION</a>
+    <a href="#pledge" style="font:500 13px 'Space Grotesk';letter-spacing:.12em;color:rgba(242,240,234,.7);text-decoration:none">THE PLEDGE</a>
+    <a href="FaceForward Explorations.dc.html#2b" style="font:500 13px 'Space Grotesk';letter-spacing:.12em;color:rgba(242,240,234,.7);text-decoration:none">THE UNIFORM</a>
+    <div style="background:#E8B62B;color:#131316;font:700 13px 'Space Grotesk';letter-spacing:.1em;padding:12px 22px;cursor:pointer" style-hover="background:#F2C94C">TAKE THE PLEDGE</div>
+  </div>
+</div>
+<div id="ff-hero" style="position:relative;height:calc(100vh - 76px);min-height:800px;overflow:hidden">
+  <div style="position:absolute;top:44px;left:48px;font:500 12px 'Space Grotesk';letter-spacing:.2em;color:rgba(242,240,234,.5)">A PUBLIC SERVICE CAMPAIGN</div>
+  <sc-if value="{{ heroOn }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute;left:90px;top:150px">
+    <div style="display:flex;align-items:baseline">
+      <div style="position:relative;width:96px;height:150px;flex:none">
+        <div style="position:absolute;left:0;top:0;width:30px;height:150px;background:#F2F0EA"></div>
+        <div style="position:absolute;left:30px;top:0;width:66px;height:30px;background:#F2F0EA"></div>
+        <div style="position:absolute;left:30px;top:60px;width:66px;height:30px;background:#F2F0EA"></div>
+        <div style="position:absolute;left:31px;top:31px;width:60px;height:24px;border:2px dashed rgba(242,240,234,.3);animation:sSlot 6.5s both"></div>
+        <div style="position:absolute;left:31px;top:91px;width:60px;height:24px;border:2px dashed rgba(242,240,234,.3);animation:sSlot 6.5s both"></div>
+        <div style="position:absolute;left:34px;top:34px;width:58px;height:22px;background:#E8B62B;border-radius:9px 6px 6px 9px;animation:sCarA 6.5s both"><div style="position:absolute;left:13px;top:3px;width:7px;height:16px;background:rgba(19,19,19,.35);border-radius:2px"></div></div>
+        <div style="position:absolute;left:34px;top:94px;width:58px;height:22px;background:#C9C7C0;border-radius:9px 6px 6px 9px;animation:sCarB 6.5s both"><div style="position:absolute;left:13px;top:3px;width:7px;height:16px;background:rgba(19,19,19,.35);border-radius:2px"></div></div>
+      </div>
+      <span style="display:inline-block;font:900 218px/1 Archivo,sans-serif;letter-spacing:-0.03em;color:#F2F0EA;margin-left:8px;animation:sTextOut 6.5s both">ACE</span>
+    </div>
+    <div style="display:flex;align-items:baseline;margin-top:30px">
+      <div style="position:relative;width:96px;height:150px;flex:none">
+        <div style="position:absolute;left:0;top:0;width:30px;height:150px;background:#F2F0EA"></div>
+        <div style="position:absolute;left:30px;top:0;width:66px;height:30px;background:#F2F0EA"></div>
+        <div style="position:absolute;left:30px;top:60px;width:66px;height:30px;background:#F2F0EA"></div>
+        <div style="position:absolute;left:31px;top:31px;width:60px;height:24px;border:2px dashed rgba(242,240,234,.3);animation:sSlot 6.5s both"></div>
+        <div style="position:absolute;left:31px;top:91px;width:60px;height:24px;border:2px dashed rgba(242,240,234,.3);animation:sSlot 6.5s both"></div>
+        <div style="position:absolute;left:34px;top:34px;width:58px;height:22px;background:#F2F0EA;border-radius:9px 6px 6px 9px;animation:sCarC 6.5s both"><div style="position:absolute;left:13px;top:3px;width:7px;height:16px;background:rgba(19,19,19,.35);border-radius:2px"></div></div>
+        <div style="position:absolute;left:34px;top:94px;width:58px;height:22px;background:#E8B62B;border-radius:9px 6px 6px 9px;animation:sCarD 6.5s both"><div style="position:absolute;left:13px;top:3px;width:7px;height:16px;background:rgba(19,19,19,.35);border-radius:2px"></div></div>
+      </div>
+      <span style="display:inline-block;font:900 218px/1 Archivo,sans-serif;letter-spacing:-0.03em;color:#F2F0EA;margin-left:8px;animation:sTextOut2 6.5s both">ORWARD</span>
+    </div>
+  </div>
+  <div style="position:absolute;left:92px;bottom:96px;animation:sTag 6.5s both">
+    <div style="font:700 40px/1.2 Archivo,sans-serif;color:#F2F0EA;white-space:nowrap">Backing out is no way to live.</div>
+    <div style="margin-top:12px;font:500 13px 'Space Grotesk';letter-spacing:.16em;color:#E8B62B">FACEFORWARD — PARK NOSE-IN. LEAVE HEAD-ON.</div>
+  </div>
+  </sc-if>
+  <div style="position:absolute;right:48px;bottom:44px;font:500 11px 'Space Grotesk';letter-spacing:.18em;color:rgba(242,240,234,.4)">SCROLL — BUT FIRST, REFLECT</div>
+</div>
+<div id="position" style="background:#F2F0EA;color:#131316;padding:130px 90px">
+  <div style="font:500 12px 'Space Grotesk';letter-spacing:.2em;color:rgba(19,19,19,.5)">THE POSITION</div>
+  <div style="margin-top:28px;font:900 62px/1.08 Archivo,sans-serif;letter-spacing:-0.02em;max-width:900px;text-wrap:pretty">Backing in is planning your exit. We plan to arrive.</div>
+  <div style="margin-top:48px;display:flex;gap:64px;max-width:1000px">
+    <div style="flex:1;font:500 17px/1.7 'Space Grotesk';color:rgba(19,19,19,.8)">Every day, millions of drivers reverse into parking spots as if the supermarket were a getaway. They arrive braced to flee. Three-point turns. Backup cameras. Doubt. We ask, respectfully: what are you running from?</div>
+    <div style="flex:1;font:500 17px/1.7 'Space Grotesk';color:rgba(19,19,19,.8)">FaceForward is a movement for people who arrive on purpose. Nose in. Head up. Bumper to the line. We don't park to leave. We park to be somewhere.</div>
+  </div>
+</div>
+<div id="pledge" style="padding:130px 90px">
+  <div style="font:500 12px 'Space Grotesk';letter-spacing:.2em;color:rgba(242,240,234,.5)">THE THREE-POINT PLEDGE</div>
+  <div style="margin-top:28px;font:900 62px/1.08 Archivo,sans-serif;letter-spacing:-0.02em">One motion. Zero shame.</div>
+  <div style="margin-top:64px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:48px;max-width:1200px">
+    <div style="border-top:2px solid #E8B62B;padding-top:28px">
+      <div style="height:80px;position:relative">
+        <div style="position:absolute;left:0;top:18px;width:120px;height:44px;border:2px dashed rgba(242,240,234,.3)"></div>
+      </div>
+      <div style="font:900 15px Archivo,sans-serif;letter-spacing:.08em;color:#E8B62B">01 — APPROACH</div>
+      <div style="margin-top:10px;font:500 15px/1.6 'Space Grotesk';color:rgba(242,240,234,.75)">See the spot. Want the spot. Do not circle the lot negotiating with yourself.</div>
+    </div>
+    <div style="border-top:2px solid #E8B62B;padding-top:28px">
+      <div style="height:80px;position:relative">
+        <div style="position:absolute;left:0;top:18px;width:120px;height:44px;border:2px dashed rgba(242,240,234,.3)"></div>
+        <div style="position:absolute;left:52px;top:26px;width:96px;height:30px;background:#E8B62B;border-radius:12px 8px 8px 12px;transform:rotate(-11deg)"><div style="position:absolute;left:21px;top:4px;width:10px;height:22px;background:rgba(19,19,19,.35);border-radius:3px"></div></div>
+      </div>
+      <div style="font:900 15px Archivo,sans-serif;letter-spacing:.08em;color:#E8B62B">02 — COMMIT</div>
+      <div style="margin-top:10px;font:500 15px/1.6 'Space Grotesk';color:rgba(242,240,234,.75)">One turn of the wheel. No shimmying. Your ancestors crossed oceans facing forward.</div>
+    </div>
+    <div style="border-top:2px solid #E8B62B;padding-top:28px">
+      <div style="height:80px;position:relative">
+        <div style="position:absolute;left:0;top:18px;width:120px;height:44px;border:2px dashed rgba(242,240,234,.3)"></div>
+        <div style="position:absolute;left:12px;top:25px;width:96px;height:30px;background:#E8B62B;border-radius:12px 8px 8px 12px"><div style="position:absolute;left:21px;top:4px;width:10px;height:22px;background:rgba(19,19,19,.35);border-radius:3px"></div></div>
+      </div>
+      <div style="font:900 15px Archivo,sans-serif;letter-spacing:.08em;color:#E8B62B">03 — ARRIVE</div>
+      <div style="margin-top:10px;font:500 15px/1.6 'Space Grotesk';color:rgba(242,240,234,.75)">Front bumper to the line. Engine off. You are here now. Be here.</div>
+    </div>
+  </div>
+</div>
+<div style="background:#F2F0EA;color:#131316;padding:110px 90px;display:flex;align-items:center;justify-content:space-between">
+  <div>
+    <div style="font:900 48px/1.1 Archivo,sans-serif;letter-spacing:-0.02em">Take the pledge.</div>
+    <div style="margin-top:14px;font:500 16px/1.6 'Space Grotesk';color:rgba(19,19,19,.7);max-width:520px">It costs nothing. It changes nothing, mechanically. It changes everything, spiritually.</div>
+  </div>
+  <div style="background:#131316;color:#F2F0EA;font:700 14px 'Space Grotesk';letter-spacing:.1em;padding:18px 32px;cursor:pointer;flex:none" style-hover="background:#2A2A2E">I WILL PARK NOSE-IN</div>
+</div>
+<div style="background:#0E0E10;padding:56px 90px;display:flex;align-items:center;justify-content:space-between">
+  <div style="display:flex;gap:3px">
+    <div style="position:relative;width:13px;height:20px">
+      <div style="position:absolute;left:0;top:0;width:4px;height:20px;background:rgba(242,240,234,.5)"></div>
+      <div style="position:absolute;left:4px;top:0;width:9px;height:4px;background:rgba(242,240,234,.5)"></div>
+      <div style="position:absolute;left:4px;top:8px;width:9px;height:4px;background:rgba(242,240,234,.5)"></div>
+    </div>
+    <div style="position:relative;width:13px;height:20px">
+      <div style="position:absolute;left:0;top:0;width:4px;height:20px;background:rgba(242,240,234,.5)"></div>
+      <div style="position:absolute;left:4px;top:0;width:9px;height:4px;background:rgba(242,240,234,.5)"></div>
+      <div style="position:absolute;left:4px;top:8px;width:9px;height:4px;background:rgba(242,240,234,.5)"></div>
+    </div>
+  </div>
+  <div style="font:500 12px 'Space Grotesk';letter-spacing:.14em;color:rgba(242,240,234,.4)">© 2026 FACEFORWARD. ALL RIGHTS FORWARD.</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { heroOn: true };
+  componentDidMount() {
+    this.away = false;
+    this.io = new IntersectionObserver((es) => {
+      es.forEach((e) => {
+        if (e.intersectionRatio < 0.1) { this.away = true; }
+        else if (this.away && e.intersectionRatio > 0.5) {
+          this.away = false;
+          this.setState({ heroOn: false }, () => setTimeout(() => this.setState({ heroOn: true }), 60));
+        }
+      });
+    }, { threshold: [0, 0.1, 0.6] });
+    const el = document.getElementById('ff-hero');
+    if (el) this.io.observe(el);
+  }
+  componentWillUnmount() { if (this.io) this.io.disconnect(); }
+  renderVals() { return { heroOn: this.state.heroOn }; }
+}
+</script>
+</body>
+</html>

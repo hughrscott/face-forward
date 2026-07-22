@@ -1,0 +1,101 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import NavBar from '../../components/NavBar.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+---
+<Layout title="Research" description="Methodology, kinematics, and Monte Carlo results behind the Face Forward parking simulation.">
+  <NavBar />
+  <main id="main">
+    <div class="mx-auto max-w-4xl px-5 py-16 lg:px-8 lg:py-20">
+      <p class="font-mono text-xs uppercase tracking-[.22em] text-gold">The Research</p>
+      <h1 class="mt-2 font-display text-4xl font-semibold sm:text-5xl">Methodology & Findings</h1>
+      <p class="mt-4 max-w-2xl leading-relaxed text-chalk/70">
+        Our position is grounded in a reproducible kinematic simulation, not intuition alone. Below is a summary of
+        the model, the Monte Carlo protocol, and where you can read the full technical treatment.
+      </p>
+
+      <div class="mt-10 flex flex-wrap gap-4">
+        <a
+          href="/docs/methodology.pdf"
+          class="rounded-sm bg-gold px-6 py-3 text-sm font-semibold uppercase tracking-[.1em] text-forest transition-brand duration-200 hover:brightness-110"
+        >
+          Download Whitepaper (PDF)
+        </a>
+        <a
+          href="https://github.com/hughrscott/face-forward"
+          target="_blank"
+          rel="noreferrer"
+          class="rounded-sm border border-chalk/25 px-6 py-3 text-sm font-semibold uppercase tracking-[.1em] text-chalk transition-brand duration-200 hover:border-gold hover:text-gold"
+        >
+          Simulation Source (GitHub)
+        </a>
+      </div>
+
+      <section class="mt-14 space-y-6">
+        <h2 class="font-display text-2xl font-semibold">Model summary</h2>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <div class="card-surface rounded-sm p-6">
+            <p class="font-mono text-[11px] uppercase tracking-[.16em] text-gold">Kinematics</p>
+            <p class="mt-3 text-sm leading-relaxed text-chalk/75">
+              Non-holonomic Ackermann steering model, 2.8m wheelbase, state vector [x, y, &theta;, v] with
+              acceleration and steering-angle control inputs.
+            </p>
+          </div>
+          <div class="card-surface rounded-sm p-6">
+            <p class="font-mono text-[11px] uppercase tracking-[.16em] text-gold">Line of sight</p>
+            <p class="mt-3 text-sm leading-relaxed text-chalk/75">
+              Driver eye position 1.2m forward of the rear axle; sightlines blocked by adjacent-vehicle geometric
+              shadows (SUV: 2.0m &times; 5.2m &times; 1.9m).
+            </p>
+          </div>
+          <div class="card-surface rounded-sm p-6">
+            <p class="font-mono text-[11px] uppercase tracking-[.16em] text-gold">State machine</p>
+            <p class="mt-3 text-sm leading-relaxed text-chalk/75">
+              Gear-shift delay (1.0s), stochastic driver reaction latency (&mu;=0.75s, &sigma;=0.15s), and a
+              0.5s-per-sweep visual scan rate model cognitive and mechanical latency.
+            </p>
+          </div>
+          <div class="card-surface rounded-sm p-6">
+            <p class="font-mono text-[11px] uppercase tracking-[.16em] text-gold">Monte Carlo protocol</p>
+            <p class="mt-3 text-sm leading-relaxed text-chalk/75">
+              10,000 randomized trials sweeping pedestrian density (0.05&ndash;0.30 ped/m), aisle width
+              (5.5&ndash;7.2m), and adjacent SUV probability (0&ndash;0.8), logging cycle time, proximity warnings,
+              critical conflicts, and collisions.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-14">
+        <h2 class="font-display text-2xl font-semibold">Empirical validation roadmap</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-chalk/70">
+          The simulation establishes a theoretical case. The next phase validates it against real-world observation.
+        </p>
+        <ol class="mt-6 space-y-5">
+          <li class="card-surface rounded-sm p-5">
+            <p class="font-mono text-[11px] uppercase tracking-[.16em] text-gold">Phase 1 &middot; Planned</p>
+            <p class="mt-2 text-sm leading-relaxed text-chalk/75">
+              Camera-based pilot at 2&ndash;3 volunteer parking lots, capturing anonymized top-down footage of
+              forward and reverse maneuvers during peak pedestrian hours.
+            </p>
+          </li>
+          <li class="card-surface rounded-sm p-5">
+            <p class="font-mono text-[11px] uppercase tracking-[.16em] text-gold">Phase 2 &middot; Planned</p>
+            <p class="mt-2 text-sm leading-relaxed text-chalk/75">
+              Automated trajectory extraction and near-miss detection pipeline, calibrated against the simulation's
+              collision and proximity thresholds.
+            </p>
+          </li>
+          <li class="card-surface rounded-sm p-5">
+            <p class="font-mono text-[11px] uppercase tracking-[.16em] text-gold">Phase 3 &middot; Not started</p>
+            <p class="mt-2 text-sm leading-relaxed text-chalk/75">
+              Comparative statistical analysis of observed conflict rates against simulated predictions, published
+              as a follow-up whitepaper.
+            </p>
+          </li>
+        </ol>
+      </section>
+    </div>
+  </main>
+  <SiteFooter />
+</Layout>
