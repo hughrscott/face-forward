@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101718">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101718'/%3E%3Cpath d='M7 25V7h18v4H12v4h10v4H12v6z' fill='%23f1b434'/%3E%3C/svg%3E">
+  <title>Project Parkway — Maneuver Observatory</title>
+  <meta name="description" content="A comparative kinematic observatory for forward and reverse parking maneuvers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      ink: '#101718', paper: '#f2efe6', asphalt: '#252d2e', amber: '#f1b434', signal: '#e04b3f', mint: '#8eb8a5'
+    }, fontFamily: { sans: ['Inter','sans-serif'], mono: ['IBM Plex Mono','monospace'] } } } };
+  </script>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #101718; color: #f2efe6; }
+    body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .18; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E"); }
+    .hairline { border-color: rgba(242,239,230,.18); }
+    .instrument { background: rgba(27,35,36,.86); box-shadow: inset 0 1px rgba(255,255,255,.035); }
+    .metric-value { font-variant-numeric: tabular-nums; letter-spacing: -.045em; }
+    input[type="range"] { appearance: none; width: 100%; height: 2px; background: rgba(242,239,230,.24); outline: none; }
+    input[type="range"]::-webkit-slider-thumb { appearance:none; width:16px; height:16px; border-radius:0; background:#f1b434; border:3px solid #101718; box-shadow:0 0 0 1px #f1b434; cursor:ew-resize; }
+    input[type="range"]::-moz-range-thumb { width:10px; height:10px; border-radius:0; background:#f1b434; border:3px solid #101718; box-shadow:0 0 0 1px #f1b434; cursor:ew-resize; }
+    #sim-canvas canvas { width: 100% !important; height: auto !important; display: block; }
+    .status-dot { animation: pulse 2s steps(2,end) infinite; }
+    @keyframes pulse { 50% { opacity: .35; } }
+    @media (prefers-reduced-motion: reduce) { .status-dot { animation:none; } }
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased selection:bg-amber selection:text-ink">
+  <header class="border-b hairline">
+    <div class="mx-auto max-w-[1600px] px-5 py-5 lg:px-9 lg:py-7 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+      <div>
+        <div class="mb-2 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[.22em] text-amber">
+          <span class="status-dot inline-block h-2 w-2 bg-amber"></span>
+          Live comparative instrument · PP–02
+        </div>
+        <h1 class="text-3xl font-semibold tracking-[-.045em] md:text-5xl">Maneuver Observatory</h1>
+      </div>
+      <div class="max-w-md text-sm leading-relaxed text-paper/58 md:text-right">
+        Rear-axle trajectories replayed from the Project Parkway kinematic model. Environmental controls alter exposure, visibility, and cycle timing.
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-[1600px] px-5 py-5 lg:px-9 lg:py-8">
+    <section aria-labelledby="comparison-title">
+      <div class="mb-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[.18em] text-paper/45">
+        <h2 id="comparison-title">Synchronized field view</h2>
+        <span id="fps-readout">Renderer · initializing</span>
+      </div>
+      <div class="overflow-hidden border hairline bg-asphalt">
+        <div id="sim-canvas" aria-label="Animated top-down comparison of forward and reverse parking"></div>
+        <div id="load-error" hidden class="p-6 font-mono text-sm text-signal">Trajectory data unavailable. Serve this directory over HTTP and confirm ../canonical_paths.json exists.</div>
+      </div>
+    </section>
+
+    <section class="mt-5 grid gap-5 xl:grid-cols-[minmax(330px,.72fr)_minmax(0,1.28fr)]">
+      <div class="instrument border hairline p-5 lg:p-6">
+        <div class="mb-7 flex items-start justify-between">
+          <div>
+            <p class="font-mono text-[10px] uppercase tracking-[.2em] text-amber">Environmental inputs</p>
+            <h2 class="mt-1 text-xl font-semibold tracking-tight">Test conditions</h2>
+          </div>
+          <button id="pause-btn" type="button" class="border border-paper/25 px-3 py-2 font-mono text-[10px] uppercase tracking-[.14em] text-paper/80 transition hover:border-amber hover:text-amber focus:outline-none focus:ring-2 focus:ring-amber">Pause run</button>
+        </div>
+
+        <div class="space-y-7">
+          <label class="block" for="slider-density">
+            <span class="mb-3 flex items-end justify-between gap-4"><span class="text-sm font-medium">Pedestrian density</span><output id="ped-value" class="font-mono text-sm text-amber">0.18 ped/m</output></span>
+            <input id="slider-density" type="range" min="0.05" max="0.30" value="0.18" step="0.01" aria-label="Pedestrian density">
+            <span class="mt-2 flex justify-between font-mono text-[9px] uppercase tracking-wider text-paper/35"><span>0.05 sparse</span><span>0.30 saturated</span></span>
+          </label>
+          <label class="block" for="slider-aisle">
+            <span class="mb-3 flex items-end justify-between gap-4"><span class="text-sm font-medium">Aisle width</span><output id="aisle-value" class="font-mono text-sm text-amber">6.35 m</output></span>
+            <input id="slider-aisle" type="range" min="5.50" max="7.20" value="6.35" step="0.05" aria-label="Aisle width">
+            <span class="mt-2 flex justify-between font-mono text-[9px] uppercase tracking-wider text-paper/35"><span>5.50 constrained</span><span>7.20 generous</span></span>
+          </label>
+          <label class="block" for="slider-suv">
+            <span class="mb-3 flex items-end justify-between gap-4"><span class="text-sm font-medium">Adjacent SUV presence</span><output id="suv-value" class="font-mono text-sm text-amber">40%</output></span>
+            <input id="slider-suv" type="range" min="0" max="80" value="40" step="1" aria-label="SUV presence probability">
+            <span class="mt-2 flex justify-between font-mono text-[9px] uppercase tracking-wider text-paper/35"><span>0% clear sightline</span><span>80% obstructed</span></span>
+          </label>
+          <label class="block" for="slider-speed">
+            <span class="mb-3 flex items-end justify-between gap-4"><span class="text-sm font-medium">Maneuver speed</span><output id="speed-value" class="font-mono text-sm text-amber">1.00×</output></span>
+            <input id="slider-speed" type="range" min="0.50" max="1.50" value="1.00" step="0.05" aria-label="Maneuver speed">
+            <span class="mt-2 flex justify-between font-mono text-[9px] uppercase tracking-wider text-paper/35"><span>0.50 measured</span><span>1.50 brisk</span></span>
+          </label>
+        </div>
+        <p class="mt-7 border-t hairline pt-4 font-mono text-[9px] leading-relaxed uppercase tracking-[.12em] text-paper/35">Path geometry snaps to the nearest validated aisle profile. Exposure metrics update continuously from the selected conditions.</p>
+      </div>
+
+      <div class="grid gap-px overflow-hidden border hairline bg-paper/15 md:grid-cols-2">
+        <article class="instrument p-5 lg:p-6" aria-labelledby="forward-heading">
+          <div class="flex items-center justify-between gap-3">
+            <div><p class="font-mono text-[10px] uppercase tracking-[.18em] text-mint">Protocol A</p><h2 id="forward-heading" class="mt-1 text-2xl font-semibold tracking-tight">Forward / nose-in</h2></div>
+            <span class="border border-mint/35 px-2 py-1 font-mono text-[9px] uppercase tracking-wider text-mint">control</span>
+          </div>
+          <div class="mt-8 grid grid-cols-3 gap-4">
+            <div id="stopwatch-forward" class="col-span-3 border-b hairline pb-5">
+              <p class="font-mono text-[9px] uppercase tracking-[.16em] text-paper/38">Cycle stopwatch</p>
+              <p id="forward-time" class="metric-value mt-1 font-mono text-5xl font-medium text-paper md:text-6xl" role="timer" aria-live="off">00.00<span class="ml-1 text-lg text-paper/35">s</span></p>
+              <div class="mt-4 flex flex-wrap gap-2" aria-label="Forward stopwatch controls">
+                <button id="start-forward" type="button" class="border border-mint/40 px-3 py-2 font-mono text-[9px] uppercase tracking-[.13em] text-mint hover:border-mint focus:outline-none focus:ring-2 focus:ring-mint">Start</button>
+                <button id="stop-forward" type="button" class="border border-paper/25 px-3 py-2 font-mono text-[9px] uppercase tracking-[.13em] text-paper/70 hover:border-paper/60 focus:outline-none focus:ring-2 focus:ring-paper/60">Stop</button>
+                <button id="reset-forward" type="button" class="border border-paper/25 px-3 py-2 font-mono text-[9px] uppercase tracking-[.13em] text-paper/70 hover:border-paper/60 focus:outline-none focus:ring-2 focus:ring-paper/60">Reset</button>
+              </div>
+            </div>
+            <div><p class="font-mono text-[9px] uppercase tracking-[.13em] text-paper/38">Near-misses</p><p id="forward-near" class="metric-value mt-2 font-mono text-3xl">0</p></div>
+            <div><p class="font-mono text-[9px] uppercase tracking-[.13em] text-paper/38">Collisions</p><p id="forward-collision" class="metric-value mt-2 font-mono text-3xl">0</p></div>
+            <div><p class="font-mono text-[9px] uppercase tracking-[.13em] text-paper/38">Mean cycle</p><p id="forward-cycle" class="metric-value mt-2 font-mono text-3xl">16.22<span class="text-xs text-paper/35">s</span></p></div>
+          </div>
+        </article>
+
+        <article class="instrument p-5 lg:p-6" aria-labelledby="reverse-heading">
+          <div class="flex items-center justify-between gap-3">
+            <div><p class="font-mono text-[10px] uppercase tracking-[.18em] text-amber">Protocol B</p><h2 id="reverse-heading" class="mt-1 text-2xl font-semibold tracking-tight">Reverse / back-in</h2></div>
+            <span class="border border-amber/35 px-2 py-1 font-mono text-[9px] uppercase tracking-wider text-amber">treatment</span>
+          </div>
+          <div class="mt-8 grid grid-cols-3 gap-4">
+            <div id="stopwatch-reverse" class="col-span-3 border-b hairline pb-5">
+              <p class="font-mono text-[9px] uppercase tracking-[.16em] text-paper/38">Cycle stopwatch</p>
+              <p id="reverse-time" class="metric-value mt-1 font-mono text-5xl font-medium text-paper md:text-6xl" role="timer" aria-live="off">00.00<span class="ml-1 text-lg text-paper/35">s</span></p>
+              <div class="mt-4 flex flex-wrap gap-2" aria-label="Reverse stopwatch controls">
+                <button id="start-reverse" type="button" class="border border-amber/40 px-3 py-2 font-mono text-[9px] uppercase tracking-[.13em] text-amber hover:border-amber focus:outline-none focus:ring-2 focus:ring-amber">Start</button>
+                <button id="stop-reverse" type="button" class="border border-paper/25 px-3 py-2 font-mono text-[9px] uppercase tracking-[.13em] text-paper/70 hover:border-paper/60 focus:outline-none focus:ring-2 focus:ring-paper/60">Stop</button>
+                <button id="reset-reverse" type="button" class="border border-paper/25 px-3 py-2 font-mono text-[9px] uppercase tracking-[.13em] text-paper/70 hover:border-paper/60 focus:outline-none focus:ring-2 focus:ring-paper/60">Reset</button>
+              </div>
+            </div>
+            <div><p class="font-mono text-[9px] uppercase tracking-[.13em] text-paper/38">Near-misses</p><p id="reverse-near" class="metric-value mt-2 font-mono text-3xl">0</p></div>
+            <div><p class="font-mono text-[9px] uppercase tracking-[.13em] text-paper/38">Collisions</p><p id="reverse-collision" class="metric-value mt-2 font-mono text-3xl">0</p></div>
+            <div><p class="font-mono text-[9px] uppercase tracking-[.13em] text-paper/38">Mean cycle</p><p id="reverse-cycle" class="metric-value mt-2 font-mono text-3xl">18.44<span class="text-xs text-paper/35">s</span></p></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="mt-5 grid gap-px overflow-hidden border hairline bg-paper/15 sm:grid-cols-2" aria-label="Aggregate event counters">
+      <article id="counter-collisions" class="instrument flex items-center justify-between gap-5 p-5 lg:p-6">
+        <div><p class="font-mono text-[9px] uppercase tracking-[.16em] text-paper/38">Recorded events</p><h2 class="mt-1 text-lg font-semibold">Collisions</h2><output id="counter-collisions-value" class="metric-value mt-2 block font-mono text-4xl text-signal" aria-live="polite">0</output></div>
+        <div class="flex gap-2" aria-label="Collision counter controls">
+          <button id="dec-collisions" type="button" aria-label="Decrease collisions" class="h-11 w-11 border border-paper/25 font-mono text-xl text-paper/70 hover:border-paper/60 focus:outline-none focus:ring-2 focus:ring-amber">−</button>
+          <button id="inc-collisions" type="button" aria-label="Increase collisions" class="h-11 w-11 border border-signal/45 font-mono text-xl text-signal hover:border-signal focus:outline-none focus:ring-2 focus:ring-signal">+</button>
+        </div>
+      </article>
+      <article id="counter-nearmisses" class="instrument flex items-center justify-between gap-5 p-5 lg:p-6">
+        <div><p class="font-mono text-[9px] uppercase tracking-[.16em] text-paper/38">Recorded events</p><h2 class="mt-1 text-lg font-semibold">Near-misses</h2><output id="counter-nearmisses-value" class="metric-value mt-2 block font-mono text-4xl text-amber" aria-live="polite">0</output></div>
+        <div class="flex gap-2" aria-label="Near-miss counter controls">
+          <button id="dec-nearmisses" type="button" aria-label="Decrease near-misses" class="h-11 w-11 border border-paper/25 font-mono text-xl text-paper/70 hover:border-paper/60 focus:outline-none focus:ring-2 focus:ring-amber">−</button>
+          <button id="inc-nearmisses" type="button" aria-label="Increase near-misses" class="h-11 w-11 border border-amber/45 font-mono text-xl text-amber hover:border-amber focus:outline-none focus:ring-2 focus:ring-amber">+</button>
+        </div>
+      </article>
+    </section>
+
+    <footer class="mt-5 flex flex-col gap-2 border-t hairline pt-4 font-mono text-[9px] uppercase tracking-[.13em] text-paper/32 sm:flex-row sm:justify-between">
+      <span>Coordinate frame · rear axle centroid · SI units</span><span>Model contract v1.0 · Ackermann wheelbase 2.8 m</span>
+    </footer>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.min.js"></script>
+  <script src="../js/vehicle.js"></script>
+</body>
+</html>

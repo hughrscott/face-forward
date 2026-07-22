@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest: #0D1F17;
+  --color-emerald: #1B3B2B;
+  --color-chalk: #F5F2EB;
+  --color-gold: #E29D2A;
+  --color-slate: #64748B;
+
+  --font-display: "Cinzel", "Plus Jakarta Sans", serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+
+  --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-forest);
+    color: var(--color-chalk);
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background-color: var(--color-gold);
+    color: var(--color-forest);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .transition-brand {
+    transition-timing-function: var(--ease-brand);
+  }
+
+  .rule {
+    border-color: rgba(245, 242, 235, 0.12);
+  }
+
+  .card-surface {
+    background-color: var(--color-emerald);
+    border: 1px solid rgba(245, 242, 235, 0.08);
+  }
+
+  .metric {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
+  }
+}
+
+@media print {
+  header, footer, nav, .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+}
