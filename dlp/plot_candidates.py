@@ -47,6 +47,7 @@ for inst in instances.values():
 for rows in trajectories.values():
     rows.sort(key=lambda row: timestamps[row["frame_token"]])
 
+timing_records: list[tuple[str, float]] = []
 fig, axes = plt.subplots(2, 4, figsize=(18, 9), constrained_layout=True)
 for ax, (prefix, event) in zip(axes.flat, CANDIDATES.items()):
     token = next(token for token in agents if token.startswith(prefix))
@@ -69,6 +70,8 @@ for ax, (prefix, event) in zip(axes.flat, CANDIDATES.items()):
         ax.add_patch(Rectangle((xmin, ymin), xmax - xmin, ymax - ymin, fill=False, lw=0.4, ec="#ddd"))
 
     duration = timestamps[event_rows[-1]["frame_token"]] - timestamps[event_rows[0]["frame_token"]]
+    if event == "parking" and direction in {"forward", "reverse"}:
+        timing_records.append((direction, duration))
     ax.set_title(f"{prefix} · {event}\n{direction} ({share:.0%}), {duration:.2f}s")
     ax.set_aspect("equal", adjustable="datalim")
     ax.grid(alpha=0.2)
@@ -79,3 +82,32 @@ fig.suptitle("DLP DJI_0001 — exploratory maneuver candidates\nGray: complete t
 path = OUT / "DJI_0001_candidate_maneuvers.png"
 fig.savefig(path, dpi=160)
 print(path)
+
+fig2, ax2 = plt.subplots(figsize=(8, 6))
+fig2.subplots_adjust(bottom=0.18, top=0.80)
+palette = {"forward": "#17823b", "reverse": "#b3261e"}
+for x, direction in enumerate(("forward", "reverse")):
+    values = [duration for label, duration in timing_records if label == direction]
+    ax2.scatter([x] * len(values), values, s=90, color=palette[direction], zorder=3)
+    if values:
+        average = sum(values) / len(values)
+        ax2.hlines(average, x - 0.22, x + 0.22, color="#111", lw=3, label="mean" if x == 0 else None)
+        ax2.text(x, max(values) + 1.3, f"n={len(values)} · mean={average:.2f}s", ha="center", fontsize=10)
+
+ax2.set_xticks([0, 1], ["Forward entry", "Reverse entry"])
+ax2.set_ylabel("Provisional 8 m maneuver episode (seconds)")
+ax2.set_title("DJI_0001 timing sanity check\nEXPLORATORY ONLY — three events versus one")
+ax2.grid(axis="y", alpha=0.25)
+ax2.set_ylim(0, 35)
+ax2.legend(loc="upper left")
+fig2.text(
+    0.5,
+    0.05,
+    "Mixed/correction-heavy candidates excluded. Not inferential evidence.",
+    ha="center",
+    fontsize=9,
+    color="#555",
+)
+timing_path = OUT / "DJI_0001_timing_sanity_check.png"
+fig2.savefig(timing_path, dpi=180)
+print(timing_path)
