@@ -55,3 +55,9 @@ yarn.lock
 
 # Local config
 *.local
+
+# Licensed research datasets and derived local inspection artifacts
+# (local only; never commit or redistribute)
+dlp/data/
+dlp/results/
+data/dlp/
