@@ -64,6 +64,31 @@ def test_classify_stall_crossing_uses_final_crossing_not_forward_setup():
     assert crossing == 4
 
 
+def test_classify_stall_crossing_uses_nearest_moving_evidence_when_crossing_is_slow():
+    stall = Stall("X-R1-C01", "X", 1, 1, 0.0, 2.0, 0.0, 2.0)
+    rows = [
+        {"coords": [10.0, 1.0], "heading": 0.0, "speed": 1.0},
+        {"coords": [8.0, 1.0], "heading": 0.0, "speed": 1.0},
+        {"coords": [6.0, 1.0], "heading": 0.0, "speed": 1.0},
+        {"coords": [4.0, 1.0], "heading": 0.0, "speed": 0.02},
+        {"coords": [2.5, 1.0], "heading": 0.0, "speed": 0.02},
+        {"coords": [1.9, 1.0], "heading": 0.0, "speed": 0.02},
+        {"coords": [1.5, 1.0], "heading": 0.0, "speed": 0.02},
+    ]
+
+    method, confidence, crossing = classify_stall_crossing(
+        rows,
+        stall,
+        "parking",
+        evidence_frames=5,
+        minimum_motion_samples=3,
+    )
+
+    assert method == "reverse"
+    assert confidence == pytest.approx(1.0)
+    assert crossing == 5
+
+
 def test_detect_trajectory_events_preserves_provenance_and_boundaries():
     stall = Stall("X-R1-C01", "X", 1, 1, 0.0, 2.0, 0.0, 2.0)
     coords_and_speeds = [
@@ -147,6 +172,41 @@ def test_detect_unparking_classifies_initial_stall_exit():
     assert event.end_index == 5
     assert event.duration_seconds == pytest.approx(2.0)
     assert event.complete is True
+
+
+def test_same_stall_repositioning_forms_one_parked_episode():
+    stall = Stall("X-R1-C01", "X", 1, 1, 0.0, 2.0, 0.0, 2.0)
+    coords_and_speeds = [
+        ([1.0, 1.0], 0.0),
+        ([1.0, 1.0], 0.0),
+        ([1.0, 1.0], 0.0),
+        ([1.5, 1.0], 1.0),  # brief repositioning entirely inside the stall
+        ([1.5, 1.0], 0.0),
+        ([1.5, 1.0], 0.0),
+        ([1.5, 1.0], 0.0),
+        ([3.0, 1.0], 1.0),  # actual departure
+        ([5.0, 1.0], 1.0),
+        ([10.0, 1.0], 1.0),
+    ]
+    rows = [
+        {
+            "instance_token": f"instance-{index}",
+            "coords": coords,
+            "heading": 0.0,
+            "speed": speed,
+            "timestamp": float(index),
+        }
+        for index, (coords, speed) in enumerate(coords_and_speeds)
+    ]
+    agent = {"agent_token": "full-agent-token", "type": "Car", "size": [4.5, 2.0]}
+
+    events = detect_trajectory_events(
+        "DJI_0099", "full-scene-token", agent, rows, (stall,), fps=1.0
+    )
+
+    assert len(events) == 1
+    assert events[0].event_type == "unparking"
+    assert events[0].start_index == 7
 
 
 def test_inventory_scene_reads_bundle_and_returns_events_without_aggregation(tmp_path: Path):

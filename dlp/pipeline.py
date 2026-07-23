@@ -145,6 +145,8 @@ def classify_stall_crossing(
     event_type: str,
     *,
     moving_speed: float = 0.10,
+    evidence_frames: int = 1,
+    minimum_motion_samples: int = 1,
 ) -> tuple[str, float, int | None]:
     """Classify motion at the stall boundary, separate from the timing window."""
     inside = [stall.contains(row["coords"]) for row in rows]
@@ -162,11 +164,14 @@ def classify_stall_crossing(
 
     signs = [
         _motion_sign(rows, i)
-        for i in range(max(0, crossing - 1), min(len(rows), crossing + 2))
+        for i in range(
+            max(0, crossing - evidence_frames),
+            min(len(rows), crossing + evidence_frames + 1),
+        )
         if rows[i]["speed"] >= moving_speed
     ]
     signs = [sign for sign in signs if sign]
-    if not signs:
+    if len(signs) < minimum_motion_samples:
         return "unclear", 0.0, crossing
     forward_share = sum(sign > 0 for sign in signs) / len(signs)
     reverse_share = sum(sign < 0 for sign in signs) / len(signs)
@@ -211,10 +216,17 @@ def _merge_fragmented_static_runs(
         if merged:
             previous_start, previous_end, previous_stall = merged[-1]
             gap = rows[previous_end + 1:start]
+            gap_is_speed_noise = (
+                len(gap) <= maximum_gap_frames
+                and all(row["speed"] < 0.10 for row in gap)
+            )
+            gap_is_in_stall_repositioning = (
+                bool(gap)
+                and all(stall.contains(row["coords"]) for row in gap)
+            )
             if (
                 stall.stall_id == previous_stall.stall_id
-                and len(gap) <= maximum_gap_frames
-                and all(row["speed"] < 0.10 for row in gap)
+                and (gap_is_speed_noise or gap_is_in_stall_repositioning)
             ):
                 merged[-1] = (previous_start, end, previous_stall)
                 continue
@@ -266,7 +278,13 @@ def detect_trajectory_events(
                 start -= 1
             left_censored = start == 0 and math.dist(rows[0]["coords"], stall.center) <= envelope_metres
             segment = rows[start:run_start + 1]
-            method, confidence, crossing = classify_stall_crossing(segment, stall, "parking")
+            method, confidence, crossing = classify_stall_crossing(
+                segment,
+                stall,
+                "parking",
+                evidence_frames=max(1, round(0.5 * fps)),
+                minimum_motion_samples=min(3, max(1, round(0.12 * fps))),
+            )
             crossing_index = None if crossing is None else start + crossing
             censoring = "left" if left_censored else "none"
             events.append(
@@ -312,7 +330,13 @@ def detect_trajectory_events(
             right_censored = end == len(rows) - 1 and math.dist(rows[end]["coords"], stall.center) <= envelope_metres
             classification_start = min(run_end, movement_start)
             segment = rows[classification_start:end + 1]
-            method, confidence, crossing = classify_stall_crossing(segment, stall, "unparking")
+            method, confidence, crossing = classify_stall_crossing(
+                segment,
+                stall,
+                "unparking",
+                evidence_frames=max(1, round(0.5 * fps)),
+                minimum_motion_samples=min(3, max(1, round(0.12 * fps))),
+            )
             crossing_index = None if crossing is None else classification_start + crossing
             censoring = "right" if right_censored else "none"
             events.append(

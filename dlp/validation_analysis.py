@@ -8,6 +8,8 @@ from typing import Any, Mapping, Sequence
 
 _EVENT_TYPES = ("parking", "unparking", "not_event")
 _METHODS = ("forward", "reverse", "mixed")
+_CLASSIFIABLE_METHODS = frozenset({"forward", "reverse"})
+_PRIMARY_VEHICLE_TYPES = frozenset({"Car", "Medium Vehicle"})
 
 
 def _safe_div(numerator: int, denominator: int) -> float | None:
@@ -74,6 +76,14 @@ def compare_validation_labels(
         detector_positive = row.get("source_kind") == "detector_positive"
         candidate_positive = row.get("source_kind") != "random_track"
         human_positive = human.get("event_type") != "not_event"
+        human_eligible = (
+            human_positive
+            and human.get("method") in _CLASSIFIABLE_METHODS
+            and human.get("censoring") == "complete"
+            and human.get("start_index") is not None
+            and human.get("end_index") is not None
+            and row.get("agent_type") in _PRIMARY_VEHICLE_TYPES
+        )
 
         if candidate_positive and human_positive:
             candidate_counts["tp"] += 1
@@ -84,16 +94,16 @@ def compare_validation_labels(
         else:
             candidate_counts["tn"] += 1
 
-        if detector_positive and human_positive:
+        if detector_positive and human_eligible:
             counts["tp"] += 1
         elif detector_positive:
             counts["fp"] += 1
-        elif human_positive:
+        elif human_eligible:
             counts["fn"] += 1
         else:
             counts["tn"] += 1
 
-        predicted_event = row.get("detector_event_type") if detector_positive else "not_event"
+        predicted_event = row.get("detector_event_type") if candidate_positive else "not_event"
         if predicted_event == human.get("event_type"):
             event_type_matches += 1
         else:
@@ -103,7 +113,7 @@ def compare_validation_labels(
         human_method = human.get("method")
         detector_method = row.get("detector_method")
         if (
-            detector_positive
+            candidate_positive
             and predicted_event == human.get("event_type")
             and human_method in _METHODS
             and detector_method in _METHODS
@@ -114,7 +124,7 @@ def compare_validation_labels(
             else:
                 method_disagreements.append(item_id)
 
-        if detector_positive and human_positive:
+        if candidate_positive and human_positive:
             fps = float(fps_by_item[item_id])
             if fps <= 0:
                 raise ValueError(f"Non-positive FPS for {item_id}")
@@ -144,8 +154,8 @@ def compare_validation_labels(
     reviewer_disagreements = [item for item in overlap if hugh_labels[item]["event_type"] != hermes_labels[item]["event_type"]]
 
     gates = {
-        "event_precision": _gate(precision, 0.95),
-        "event_recall": _gate(recall, 0.90),
+        "event_precision": _gate(candidate_precision, 0.95),
+        "event_recall": _gate(candidate_recall, 0.90),
         "method_accuracy": _gate(method_accuracy, 0.95),
         "timing_boundary_error": _gate(boundary_median, 0.5, strictly_below=True),
         "categorical_agreement": _gate(kappa, 0.90),
@@ -154,10 +164,10 @@ def compare_validation_labels(
     return {
         "reviewed_items": len(hugh_labels),
         "hermes_overlap_items": len(overlap),
-        "event_counts": counts,
-        "event_precision": precision,
-        "event_recall": recall,
-        "event_f1": f1,
+        "event_counts": candidate_counts,
+        "event_precision": candidate_precision,
+        "event_recall": candidate_recall,
+        "event_f1": candidate_f1,
         "strict_analyzable_event_counts": counts,
         "strict_analyzable_event_precision": precision,
         "strict_analyzable_event_recall": recall,
