@@ -5,6 +5,11 @@ This directory contains the first verified inspection of the UC Berkeley Dragon 
 ## Run
 
 ```bash
+# Complete 30-scene dataset (150 JSON files, 7.466 GiB). Resumable at file level;
+# every file is checked against Zenodo's published size and MD5.
+python3 dlp/download_all_scenes.py
+
+# Optional one-scene smoke test / historical prototype.
 python3 dlp/download_scene_0001.py
 python3 dlp/inspect_scene.py
 python3 -m venv .tools/dlp-venv
