@@ -25,6 +25,12 @@
   let view = null;
 
   const api = (path) => `${path}${path.includes("?") ? "&" : "?"}reviewer=${encodeURIComponent(reviewer)}`;
+  const boundaryGuidance = {
+    parking: "<strong>Parking boundaries:</strong> Start at the first sustained, committed positioning away from established aisle travel. For forward entry this is normally the first sustained heading or lateral-path deviation toward the stall; for reverse entry include the committed pull-past/setup. End at the first frame beginning the sustained parked state.",
+    unparking: "<strong>Unparking boundaries:</strong> Start at the first sustained movement out of the parked state. End at the first frame beginning sustained, established aisle travel after the stall exit; do not wait for an arbitrary distance from the stall.",
+    not_event: "<strong>No-event label:</strong> Do not set maneuver boundaries.",
+    unset: "<strong>Boundary rule:</strong> Choose an event type to show the applicable start and end definitions.",
+  };
 
   async function fetchJson(url, options) {
     const response = await fetch(url, options);
@@ -79,7 +85,9 @@
   }
 
   function eventTypeChanged() {
-    const notEvent = selectedValue("event_type") === "not_event";
+    const eventType = selectedValue("event_type");
+    const notEvent = eventType === "not_event";
+    $("boundaryGuidance").innerHTML = boundaryGuidance[eventType] || boundaryGuidance.unset;
     $("methodFieldset").disabled = notEvent;
     $("censorFieldset").disabled = notEvent;
     $("setStart").disabled = notEvent;
@@ -139,8 +147,15 @@
     const item = reviewIndex.items[itemPosition];
     setMessage("Loading trajectory…");
     payload = await fetchJson(api(`/api/item?id=${encodeURIComponent(item.item_id)}`));
-    framePosition = 0;
+    if (payload.review_anchor_index == null && payload.trajectory.length) {
+      payload.review_anchor_index = payload.trajectory[Math.floor((payload.trajectory.length - 1) / 2)].frame_index;
+    }
+    const anchorPosition = payload.trajectory.findIndex(
+      (point) => point.frame_index === payload.review_anchor_index,
+    );
+    framePosition = anchorPosition >= 0 ? anchorPosition : 0;
     view = computeView(payload);
+    $("reviewAnchor").textContent = payload.review_anchor_index ?? "—";
     $("itemPosition").textContent = `ITEM ${itemPosition + 1} / ${reviewIndex.items.length}`;
     $("itemTitle").textContent = item.item_id;
     $("provenance").innerHTML = `${payload.scene_id}<br>${payload.vehicle_type} · ${payload.trajectory.length} tracked frames`;
@@ -218,6 +233,19 @@
     ctx.stroke();
   }
 
+  function drawAnchor(frameIndex, map) {
+    const point = payload.trajectory.find((p) => p.frame_index === frameIndex);
+    if (!point) return;
+    const [x, y] = map.point(point.x, point.y);
+    ctx.beginPath();
+    ctx.arc(x, y, 9, 0, Math.PI * 2);
+    ctx.strokeStyle = "#e8b62b";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([3, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
   function draw() {
     if (!payload || !view || !canvas.width) return;
     const map = transform();
@@ -241,6 +269,7 @@
 
     drawPath(payload.trajectory, map, "rgba(242,240,234,.30)", 2);
     drawPath(payload.trajectory.slice(0, framePosition + 1), map, "#e8b62b", 3);
+    drawAnchor(payload.review_anchor_index, map);
     drawMarker(labelStart, "#50c878", map);
     drawMarker(labelEnd, "#ef6a65", map);
 
@@ -302,6 +331,42 @@
     updateTimeline();
   }
 
+  function consistencyWarnings(label) {
+    if (label.event_type === "not_event" || label.censoring !== "complete") return [];
+    const warnings = [];
+    if (label.event_type === "parking" && label.end_index !== null) {
+      const position = payload.trajectory.findIndex((point) => point.frame_index === label.end_index);
+      const count = Math.max(1, Math.round(2 * payload.fps));
+      const tail = position < 0 ? [] : payload.trajectory.slice(position, position + count);
+      const endPoint = tail[0];
+      const stall = endPoint && payload.stalls.find((candidate) => (
+        endPoint.x >= candidate.xmin && endPoint.x <= candidate.xmax
+        && endPoint.y >= candidate.ymin && endPoint.y <= candidate.ymax
+      ));
+      const lowSpeedShare = tail.length ? tail.filter((point) => point.speed < 0.10).length / tail.length : 0;
+      const remainsInStall = Boolean(stall) && tail.every((point) => (
+        point.x >= stall.xmin && point.x <= stall.xmax
+        && point.y >= stall.ymin && point.y <= stall.ymax
+      ));
+      if (tail.length < count || lowSpeedShare < 0.80 || !remainsInStall) {
+        warnings.push("parking_end_not_sustained_parked");
+      }
+    }
+    if (label.event_type === "unparking" && label.end_index !== null) {
+      const position = payload.trajectory.findIndex((point) => point.frame_index === label.end_index);
+      const count = Math.max(1, Math.round(payload.fps));
+      const tail = position < 0 ? [] : payload.trajectory.slice(position, position + count);
+      const movingShare = tail.length ? tail.filter((point) => point.speed >= 0.50).length / tail.length : 0;
+      const distance = tail.length > 1
+        ? Math.hypot(tail.at(-1).x - tail[0].x, tail.at(-1).y - tail[0].y)
+        : 0;
+      if (tail.length < count || movingShare < 0.80 || distance < 0.50) {
+        warnings.push("unparking_end_not_established_aisle_travel");
+      }
+    }
+    return warnings;
+  }
+
   function collectLabel() {
     const eventType = selectedValue("event_type");
     if (!eventType) throw new Error("Choose parking, unparking, or not an event.");
@@ -316,6 +381,7 @@
       exclusion_reason: $("exclusionReason").value,
       confidence: selectedValue("confidence"),
       note: $("note").value,
+      warnings_acknowledged: [],
     };
   }
 
@@ -324,6 +390,17 @@
     try {
       setMessage("Saving…");
       const label = collectLabel();
+      const warnings = consistencyWarnings(label);
+      if (warnings.length) {
+        const proceed = window.confirm(
+          `Physical-consistency warning:\n\n${warnings.join("\n")}\n\nSave this label and record an explicit override?`,
+        );
+        if (!proceed) {
+          setMessage("Label not saved; review the selected boundary or censoring status.", "error");
+          return;
+        }
+        label.warnings_acknowledged = warnings;
+      }
       const saved = await fetchJson(api("/api/label"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },

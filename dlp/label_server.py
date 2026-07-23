@@ -25,6 +25,10 @@ EXCLUSIONS = frozenset({
     "other",
 })
 CONFIDENCE = frozenset({"high", "medium", "low"})
+CONSISTENCY_WARNINGS = frozenset({
+    "parking_end_not_sustained_parked",
+    "unparking_end_not_established_aisle_travel",
+})
 
 
 def validate_label(payload: dict, allowed_items: set[str]) -> dict:
@@ -57,6 +61,14 @@ def validate_label(payload: dict, allowed_items: set[str]) -> dict:
         raise ValueError("Invalid confidence")
     if not isinstance(payload["note"], str) or len(payload["note"]) > 2000:
         raise ValueError("Note must be text no longer than 2000 characters")
+    warnings_acknowledged = payload.get("warnings_acknowledged", [])
+    if (
+        not isinstance(warnings_acknowledged, list)
+        or any(not isinstance(value, str) for value in warnings_acknowledged)
+        or not set(warnings_acknowledged).issubset(CONSISTENCY_WARNINGS)
+    ):
+        raise ValueError("Invalid consistency warning acknowledgement")
+    warnings_acknowledged = sorted(set(warnings_acknowledged))
 
     start = payload["start_index"]
     end = payload["end_index"]
@@ -99,6 +111,7 @@ def validate_label(payload: dict, allowed_items: set[str]) -> dict:
         "exclusion_reason": payload["exclusion_reason"],
         "confidence": payload["confidence"],
         "note": payload["note"].strip(),
+        "warnings_acknowledged": warnings_acknowledged,
     }
 
 

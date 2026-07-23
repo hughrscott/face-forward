@@ -61,6 +61,7 @@ def _event_manifest_row(event: dict, source_kind: str) -> dict:
         "detector_censoring": event["censoring"],
         "detector_start_index": event["start_index"],
         "detector_end_index": event["end_index"],
+        "detector_crossing_index": event.get("crossing_index"),
         "detector_stall_id": event["stall_id"],
     }
 
@@ -193,6 +194,7 @@ def build_validation_manifest(
                 "detector_censoring": None,
                 "detector_start_index": None,
                 "detector_end_index": None,
+                "detector_crossing_index": None,
                 "detector_stall_id": None,
             }
         )
@@ -293,6 +295,13 @@ def build_review_payload(
         start = max(0, int(item["detector_start_index"]) - context)
         end = min(len(rows) - 1, int(item["detector_end_index"]) + context)
     selected_rows = rows[start:end + 1]
+    if item["source_kind"] == "random_track":
+        review_anchor = (len(rows) - 1) // 2
+    else:
+        review_anchor = item.get("detector_crossing_index")
+        if review_anchor is None:
+            review_anchor = (int(item["detector_start_index"]) + int(item["detector_end_index"])) // 2
+        review_anchor = max(start, min(end, int(review_anchor)))
 
     xmin = min(float(row["coords"][0]) for row in selected_rows) - 8.0
     xmax = max(float(row["coords"][0]) for row in selected_rows) + 8.0
@@ -328,6 +337,7 @@ def build_review_payload(
         "vehicle_type": agent["type"],
         "vehicle_size": [float(value) for value in agent.get("size", (0.0, 0.0))],
         "fps": float(fps),
+        "review_anchor_index": review_anchor,
         "trajectory": trajectory,
         "stalls": [
             {

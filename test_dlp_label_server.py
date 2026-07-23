@@ -37,6 +37,22 @@ def test_validate_label_enforces_complete_event_boundaries():
         validate_label(reversed_bounds, {"VAL-001"})
 
 
+def test_validate_label_preserves_explicit_consistency_warning_acknowledgements():
+    warned = dict(
+        _valid_label(),
+        warnings_acknowledged=["parking_end_not_sustained_parked"],
+    )
+
+    label = validate_label(warned, {"VAL-001"})
+
+    assert label["warnings_acknowledged"] == ["parking_end_not_sustained_parked"]
+    with pytest.raises(ValueError, match="warning acknowledgement"):
+        validate_label(
+            dict(_valid_label(), warnings_acknowledged=["invented_warning"]),
+            {"VAL-001"},
+        )
+
+
 def test_validate_label_accepts_not_event_without_maneuver_fields():
     label = dict(
         _valid_label(),
@@ -113,3 +129,7 @@ def test_labeler_javascript_references_only_existing_dom_ids():
     declared_ids = set(re.findall(r'\bid="([A-Za-z0-9_-]+)"', html))
 
     assert referenced_ids <= declared_ids, f"Missing DOM IDs: {sorted(referenced_ids - declared_ids)}"
+    assert 'id="reviewAnchor"' in html
+    assert "first sustained movement out of the parked state" in javascript
+    assert "first frame beginning the sustained parked state" in javascript
+    assert "warnings_acknowledged" in javascript

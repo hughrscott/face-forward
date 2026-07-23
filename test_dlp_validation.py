@@ -143,6 +143,7 @@ def test_review_payload_adds_context_without_exposing_detector_boundaries():
         "agent_token": "agent-1",
         "detector_start_index": 10,
         "detector_end_index": 20,
+        "detector_crossing_index": 14,
     }
     agent = {"type": "Car", "size": [4.5, 2.0]}
     stalls = (
@@ -153,14 +154,16 @@ def test_review_payload_adds_context_without_exposing_detector_boundaries():
     payload = build_review_payload(item, agent, rows, fps=1.0, stalls=stalls)
 
     assert payload["item_id"] == "VAL-007"
+    assert payload["review_anchor_index"] == 14
     assert [point["frame_index"] for point in payload["trajectory"]] == list(range(5, 26))
     assert payload["stalls"] == [
         {"stall_id": "X-R1-C01", "xmin": 0.0, "xmax": 4.0, "ymin": 0.0, "ymax": 2.0}
     ]
     assert not any("detector" in key or key == "source_kind" for key in payload)
 
-    random_item = dict(item, source_kind="random_track")
+    random_item = dict(item, source_kind="random_track", detector_crossing_index=None)
     random_payload = build_review_payload(random_item, agent, rows, fps=1.0, stalls=stalls)
+    assert random_payload["review_anchor_index"] == 14
     assert [point["frame_index"] for point in random_payload["trajectory"]] == list(range(30))
 
 
