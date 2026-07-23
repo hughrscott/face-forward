@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import re
 import threading
 from urllib.request import Request, urlopen
 
@@ -102,3 +103,13 @@ def test_http_api_serves_blind_items_and_persists_labels(tmp_path: Path):
     assert item["item_id"] == "VAL-001"
     assert saved["revision"] == 1
     assert state["VAL-001"]["event_type"] == "parking"
+
+
+def test_labeler_javascript_references_only_existing_dom_ids():
+    app_dir = Path(__file__).parent / "dlp" / "labeler"
+    javascript = (app_dir / "app.js").read_text()
+    html = (app_dir / "index.html").read_text()
+    referenced_ids = set(re.findall(r'\$\("([A-Za-z0-9_-]+)"\)', javascript))
+    declared_ids = set(re.findall(r'\bid="([A-Za-z0-9_-]+)"', html))
+
+    assert referenced_ids <= declared_ids, f"Missing DOM IDs: {sorted(referenced_ids - declared_ids)}"
