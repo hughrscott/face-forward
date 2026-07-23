@@ -67,6 +67,29 @@
     $("progressBar").style.width = total ? `${(completed / total) * 100}%` : "0%";
   }
 
+  function resetCompletionControls() {
+    const saveNext = $("saveNext");
+    saveNext.disabled = false;
+    saveNext.textContent = "Save & next";
+    $("previousItem").textContent = "Previous";
+    $("packageName").textContent = requestedItems.length
+      ? `ADJUDICATION · ${reviewIndex.items.length} ITEMS`
+      : "DLP MANUAL VALIDATION";
+  }
+
+  function showCompletion() {
+    stopPlayback();
+    const saveNext = $("saveNext");
+    saveNext.disabled = true;
+    saveNext.textContent = "COMPLETE";
+    $("previousItem").textContent = "Review saved labels";
+    $("packageName").textContent = `COMPLETE · ${reviewIndex.items.length} ITEMS`;
+    setMessage(
+      `All ${reviewIndex.items.length} labels are saved. No further labeling is required.`,
+      "success",
+    );
+  }
+
   function updateBoundaryDisplay() {
     $("startFrame").textContent = labelStart ?? "Not set";
     $("endFrame").textContent = labelEnd ?? "Not set";
@@ -143,6 +166,7 @@
 
   async function loadItem(position) {
     stopPlayback();
+    resetCompletionControls();
     itemPosition = Math.max(0, Math.min(reviewIndex.items.length - 1, position));
     const item = reviewIndex.items[itemPosition];
     setMessage("Loading trajectory…");
@@ -413,7 +437,7 @@
       else {
         const firstOpen = reviewIndex.items.findIndex((item) => !labels[item.item_id]);
         if (firstOpen >= 0) await loadItem(firstOpen);
-        else setMessage("All 50 labels are saved. Export is ready.", "success");
+        else showCompletion();
       }
     } catch (error) {
       setMessage(error.message, "error");
@@ -445,7 +469,14 @@
     document.querySelectorAll('input[name="event_type"]').forEach((input) => input.addEventListener("change", eventTypeChanged));
     document.querySelectorAll('input[name="censoring"]').forEach((input) => input.addEventListener("change", censoringChanged));
     $("labelForm").addEventListener("submit", saveAndNext);
-    $("previousItem").addEventListener("click", () => loadItem(itemPosition - 1));
+    $("previousItem").addEventListener("click", async () => {
+      if ($("saveNext").disabled) {
+        await loadItem(itemPosition);
+        setMessage("Review mode. Saving will create a new revision.");
+      } else {
+        await loadItem(itemPosition - 1);
+      }
+    });
     window.addEventListener("resize", resizeCanvas);
     window.addEventListener("keydown", (event) => {
       if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) return;
@@ -478,7 +509,12 @@
       }
       updateProgress();
       const firstOpen = reviewIndex.items.findIndex((item) => !labels[item.item_id]);
-      await loadItem(firstOpen >= 0 ? firstOpen : 0);
+      if (firstOpen >= 0) {
+        await loadItem(firstOpen);
+      } else {
+        await loadItem(reviewIndex.items.length - 1);
+        showCompletion();
+      }
       resizeCanvas();
     } catch (error) {
       setMessage(error.message, "error");

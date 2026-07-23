@@ -133,3 +133,7 @@ def test_labeler_javascript_references_only_existing_dom_ids():
     assert "first sustained movement out of the parked state" in javascript
     assert "first frame beginning the sustained parked state" in javascript
     assert "warnings_acknowledged" in javascript
+    assert "All 50 labels are saved" not in javascript
+    assert "function showCompletion()" in javascript
+    assert "saveNext.disabled = true" in javascript
+    assert "COMPLETE · ${reviewIndex.items.length} ITEMS" in javascript
