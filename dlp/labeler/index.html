@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DLP Manual Validation</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div><strong>DLP MANUAL VALIDATION</strong><span>Protocol v1.0 · blinded review</span></div>
+    </div>
+    <div class="progress-wrap" aria-label="Review progress">
+      <div class="progress-copy"><span id="progressText">Loading…</span><span id="savedText"></span></div>
+      <div class="progress-track"><span id="progressBar"></span></div>
+    </div>
+    <a id="exportLink" class="export-link" href="#">Export labels</a>
+  </header>
+
+  <main class="workspace">
+    <section class="viewer" aria-label="Trajectory viewer">
+      <div class="viewer-head">
+        <div>
+          <span class="eyebrow" id="itemPosition">ITEM —</span>
+          <h1 id="itemTitle">Loading trajectory</h1>
+        </div>
+        <div class="provenance" id="provenance"></div>
+      </div>
+
+      <div class="canvas-shell">
+        <canvas id="trajectoryCanvas" aria-label="Animated vehicle trajectory and parking stall map"></canvas>
+        <div class="canvas-legend" aria-hidden="true">
+          <span><i class="legend-path"></i>tracked path</span>
+          <span><i class="legend-travel"></i>travelled</span>
+          <span><i class="legend-start"></i>start</span>
+          <span><i class="legend-end"></i>end</span>
+        </div>
+      </div>
+
+      <div class="transport">
+        <button id="playButton" class="icon-button" type="button" aria-label="Play or pause">PLAY</button>
+        <button id="stepBack" class="step-button" type="button" aria-label="Previous frame">−1</button>
+        <button id="stepForward" class="step-button" type="button" aria-label="Next frame">+1</button>
+        <input id="timeline" type="range" min="0" max="1" value="0" aria-label="Trajectory time">
+        <output id="timeOutput">0.00 s</output>
+        <label class="speed-control">Speed
+          <select id="playbackSpeed">
+            <option value="0.25">0.25×</option>
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+            <option value="2">2×</option>
+            <option value="4">4×</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="boundary-strip">
+        <div><span>Current frame</span><strong id="currentFrame">—</strong></div>
+        <button id="setStart" type="button">Set start <kbd>[</kbd></button>
+        <div><span>Start</span><strong id="startFrame">Not set</strong></div>
+        <button id="setEnd" type="button">Set end <kbd>]</kbd></button>
+        <div><span>End</span><strong id="endFrame">Not set</strong></div>
+        <button id="clearBoundaries" class="quiet" type="button">Clear</button>
+      </div>
+      <p class="boundary-guidance"><strong>Manual boundary rule:</strong> Start at the first sustained, committed positioning away from established aisle travel. For front-in this is usually the first heading or lateral-path deviation toward the stall; for reverse-in include the pull-past/setup. End at the first frame beginning the sustained parked state.</p>
+    </section>
+
+    <aside class="inspector" aria-label="Manual label form">
+      <div class="inspector-head">
+        <span class="eyebrow">YOUR OBSERVATION</span>
+        <p>Label only what the trajectory shows. Detector predictions and comparative results are hidden.</p>
+      </div>
+
+      <form id="labelForm" novalidate>
+        <fieldset>
+          <legend>1 · Event</legend>
+          <div class="choice-grid three">
+            <label><input type="radio" name="event_type" value="parking"><span>Parking</span></label>
+            <label><input type="radio" name="event_type" value="unparking"><span>Unparking</span></label>
+            <label><input type="radio" name="event_type" value="not_event"><span>Not an event</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset id="methodFieldset">
+          <legend>2 · Method</legend>
+          <div class="choice-grid four">
+            <label><input type="radio" name="method" value="forward"><span>Forward</span></label>
+            <label><input type="radio" name="method" value="reverse"><span>Reverse</span></label>
+            <label><input type="radio" name="method" value="mixed"><span>Mixed</span></label>
+            <label><input type="radio" name="method" value="unclear"><span>Unclear</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset id="censorFieldset">
+          <legend>3 · Track completeness</legend>
+          <div class="choice-grid four">
+            <label><input type="radio" name="censoring" value="complete"><span>Complete</span></label>
+            <label><input type="radio" name="censoring" value="left"><span>Left</span></label>
+            <label><input type="radio" name="censoring" value="right"><span>Right</span></label>
+            <label><input type="radio" name="censoring" value="both"><span>Both</span></label>
+          </div>
+          <p class="field-help">Left: beginning missing. Right: ending missing.</p>
+        </fieldset>
+
+        <label class="field-label" for="exclusionReason">4 · Exclusion reason</label>
+        <select id="exclusionReason" name="exclusion_reason">
+          <option value="none">None</option>
+          <option value="pull_through">Pull-through</option>
+          <option value="aborted">Aborted maneuver</option>
+          <option value="loading_passenger_stop">Loading / passenger stop</option>
+          <option value="double_parking">Double parking</option>
+          <option value="invalid_stall">Invalid stall</option>
+          <option value="incomplete_trajectory">Incomplete trajectory</option>
+          <option value="other">Other</option>
+        </select>
+
+        <fieldset>
+          <legend>5 · Confidence</legend>
+          <div class="choice-grid three">
+            <label><input type="radio" name="confidence" value="high"><span>High</span></label>
+            <label><input type="radio" name="confidence" value="medium"><span>Medium</span></label>
+            <label><input type="radio" name="confidence" value="low"><span>Low</span></label>
+          </div>
+        </fieldset>
+
+        <label class="field-label" for="note">Optional note</label>
+        <textarea id="note" name="note" maxlength="2000" rows="3" placeholder="Only if something needs explanation"></textarea>
+
+        <div id="formMessage" class="form-message" role="status"></div>
+        <div class="form-actions">
+          <button id="previousItem" class="secondary" type="button">Previous</button>
+          <button id="saveNext" class="primary" type="submit">Save & next</button>
+        </div>
+      </form>
+
+      <details class="shortcuts">
+        <summary>Keyboard controls</summary>
+        <p><kbd>Space</kbd> play/pause · <kbd>←</kbd>/<kbd>→</kbd> step · <kbd>[</kbd>/<kbd>]</kbd> set boundaries</p>
+      </details>
+    </aside>
+  </main>
+  <script src="/app.js" defer></script>
+</body>
+</html>
