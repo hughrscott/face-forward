@@ -3,6 +3,10 @@
 
   const params = new URLSearchParams(location.search);
   const reviewer = params.get("reviewer") || "hugh";
+  const requestedItems = (params.get("items") || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
   const $ = (id) => document.getElementById(id);
   const canvas = $("trajectoryCanvas");
   const ctx = canvas.getContext("2d");
@@ -384,6 +388,17 @@
         fetchJson(api("/api/index")),
         fetchJson(api("/api/state")),
       ]);
+      if (requestedItems.length) {
+        const byId = new Map(reviewIndex.items.map((item) => [item.item_id, item]));
+        const missing = requestedItems.filter((itemId) => !byId.has(itemId));
+        if (missing.length) throw new Error(`Unknown adjudication item(s): ${missing.join(", ")}`);
+        reviewIndex = {
+          ...reviewIndex,
+          items: requestedItems.map((itemId) => byId.get(itemId)),
+          total_items: requestedItems.length,
+        };
+        $("packageName").textContent = `ADJUDICATION · ${requestedItems.length} ITEMS`;
+      }
       updateProgress();
       const firstOpen = reviewIndex.items.findIndex((item) => !labels[item.item_id]);
       await loadItem(firstOpen >= 0 ? firstOpen : 0);
