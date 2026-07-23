@@ -46,11 +46,12 @@ def compare_validation_labels(
     manifest: Sequence[Mapping[str, Any]],
     fps_by_item: Mapping[str, float],
 ) -> dict[str, Any]:
-    """Compare strict detector predictions with Hugh labels and reviewer agreement.
+    """Compare detector outputs with Hugh labels and reviewer agreement.
 
-    Detector-positive manifest rows are strict positive predictions. Boundary and
-    random-track rows are strict negative predictions. Hugh is the human reference
-    for detector metrics; Hermes supplies an independent categorical-agreement check.
+    Candidate-detection metrics treat both strict positives and boundary/rejected
+    candidates as detections. Strict-analyzable metrics count only complete,
+    classifiable detector positives as usable timing events. Hugh is the human
+    reference; Hermes supplies an independent categorical-agreement check.
     """
     manifest_by_id = {row["item_id"]: row for row in manifest}
     missing = set(hugh_labels) - set(manifest_by_id)
@@ -58,6 +59,7 @@ def compare_validation_labels(
         raise ValueError(f"Hugh labels absent from manifest: {sorted(missing)}")
 
     counts = {"tp": 0, "fp": 0, "fn": 0, "tn": 0}
+    candidate_counts = {"tp": 0, "fp": 0, "fn": 0, "tn": 0}
     event_type_matches = 0
     event_type_denominator = 0
     method_matches = 0
@@ -70,7 +72,17 @@ def compare_validation_labels(
     for item_id, human in hugh_labels.items():
         row = manifest_by_id[item_id]
         detector_positive = row.get("source_kind") == "detector_positive"
+        candidate_positive = row.get("source_kind") != "random_track"
         human_positive = human.get("event_type") != "not_event"
+
+        if candidate_positive and human_positive:
+            candidate_counts["tp"] += 1
+        elif candidate_positive:
+            candidate_counts["fp"] += 1
+        elif human_positive:
+            candidate_counts["fn"] += 1
+        else:
+            candidate_counts["tn"] += 1
 
         if detector_positive and human_positive:
             counts["tp"] += 1
@@ -114,6 +126,13 @@ def compare_validation_labels(
     precision = _safe_div(counts["tp"], counts["tp"] + counts["fp"])
     recall = _safe_div(counts["tp"], counts["tp"] + counts["fn"])
     f1 = None if precision is None or recall is None or precision + recall == 0 else 2 * precision * recall / (precision + recall)
+    candidate_precision = _safe_div(candidate_counts["tp"], candidate_counts["tp"] + candidate_counts["fp"])
+    candidate_recall = _safe_div(candidate_counts["tp"], candidate_counts["tp"] + candidate_counts["fn"])
+    candidate_f1 = (
+        None
+        if candidate_precision is None or candidate_recall is None or candidate_precision + candidate_recall == 0
+        else 2 * candidate_precision * candidate_recall / (candidate_precision + candidate_recall)
+    )
     method_accuracy = _safe_div(method_matches, method_denominator)
     all_boundary_errors = start_errors + end_errors
     boundary_median = median(all_boundary_errors) if all_boundary_errors else None
@@ -139,6 +158,14 @@ def compare_validation_labels(
         "event_precision": precision,
         "event_recall": recall,
         "event_f1": f1,
+        "strict_analyzable_event_counts": counts,
+        "strict_analyzable_event_precision": precision,
+        "strict_analyzable_event_recall": recall,
+        "strict_analyzable_event_f1": f1,
+        "candidate_detection_counts": candidate_counts,
+        "candidate_detection_precision": candidate_precision,
+        "candidate_detection_recall": candidate_recall,
+        "candidate_detection_f1": candidate_f1,
         "event_type_accuracy": _safe_div(event_type_matches, event_type_denominator),
         "method_accuracy": method_accuracy,
         "method_denominator": method_denominator,

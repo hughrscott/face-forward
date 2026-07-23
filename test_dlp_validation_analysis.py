@@ -58,6 +58,9 @@ def test_compare_validation_labels_computes_frozen_gate_metrics():
     assert result["event_precision"] == pytest.approx(0.5)
     assert result["event_recall"] == pytest.approx(0.5)
     assert result["event_f1"] == pytest.approx(0.5)
+    assert result["candidate_detection_counts"] == {"tp": 2, "fp": 1, "fn": 0, "tn": 1}
+    assert result["candidate_detection_precision"] == pytest.approx(2 / 3)
+    assert result["candidate_detection_recall"] == pytest.approx(1.0)
     assert result["method_accuracy"] == pytest.approx(1.0)
     assert result["timing_boundary_median_absolute_error_seconds"] == pytest.approx(1.0)
     assert result["timing_start_median_absolute_error_seconds"] == pytest.approx(1.0)
