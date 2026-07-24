@@ -144,6 +144,29 @@ The v2 held-out package must:
 - record sampling weights so precision estimates can be population-weighted;
 - remain blind to aggregate forward/reverse timing outcomes.
 
+#### Frozen held-out realization (2026-07-24)
+
+- Seed: `20260724`.
+- Exclude every scene/agent pair in the 150-item v1 development manifest.
+- Enforce one sampled item per scene/agent pair across the complete v2 manifest.
+- Sample 25 detector positives from each parking/unparking × forward/reverse
+  cell (100 total), 15 left-censored and 15 right-censored boundary candidates,
+  and 20 primary-vehicle tracks with no detector candidate (150 total).
+- Hugh's blinded second-stage sample contains 8 items per positive cell,
+  10 boundary items, and 8 random tracks (50 total). Hermes independently
+  reviews all 150.
+- Every internal manifest row records its first-stage inverse sampling fraction.
+  Hugh's internal subset additionally records the second-stage reviewer
+  selection factor and their product as `analysis_weight`. None of these fields
+  appear in the browser-visible index or trajectory payload.
+- Event precision, event recall, method accuracy, and timing-boundary error use
+  the frozen `analysis_weight` values. Timing uses the weighted median absolute
+  boundary error. Hugh–Hermes categorical kappa remains an unweighted agreement
+  statistic on their common blinded items.
+- Promotion thresholds remain: event precision at least 0.95, event recall at
+  least 0.90, method accuracy at least 0.95, weighted median absolute boundary
+  error below 0.50 s, and categorical kappa at least 0.90.
+
 ## Development and promotion sequence
 
 1. Add regression tests for parked-episode merging and nearest-moving method classification.

@@ -205,6 +205,127 @@ def build_validation_manifest(
     return selected
 
 
+def _one_event_per_agent(rows: Iterable[dict], rng: random.Random) -> list[dict]:
+    by_agent: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    for row in rows:
+        by_agent[(row["scene_id"], row["agent_token"])].append(row)
+    representatives: list[dict] = []
+    for key in sorted(by_agent):
+        choices = sorted(by_agent[key], key=lambda row: row["event_id"])
+        representatives.append(choices[rng.randrange(len(choices))])
+    return representatives
+
+
+def build_v2_validation_manifest(
+    events: list[dict],
+    random_tracks: list[dict],
+    *,
+    excluded_agents: set[tuple[str, str]],
+    seed: int,
+) -> list[dict]:
+    """Build an agent-disjoint, one-item-per-agent Protocol v2 manifest."""
+    rng = random.Random(seed)
+    selected: list[dict] = []
+    used_agents: set[tuple[str, str]] = set()
+    available_events = [
+        event
+        for event in events
+        if (event["scene_id"], event["agent_token"]) not in excluded_agents
+    ]
+
+    def take_events(
+        rows: Iterable[dict],
+        count: int,
+        *,
+        source_kind: str,
+        stratum: str,
+    ) -> None:
+        pool = [
+            row
+            for row in rows
+            if (row["scene_id"], row["agent_token"]) not in used_agents
+        ]
+        representatives = _one_event_per_agent(pool, rng)
+        population_count = len(representatives)
+        sampled = _balanced_sample(representatives, count, rng)
+        sampling_weight = population_count / count
+        for event in sampled:
+            item = _event_manifest_row(event, source_kind)
+            item.update(
+                sampling_stratum=stratum,
+                population_count=population_count,
+                sample_count=count,
+                sampling_weight=sampling_weight,
+            )
+            selected.append(item)
+            used_agents.add((event["scene_id"], event["agent_token"]))
+
+    # Scarcer cells go first so global agent uniqueness cannot starve them.
+    for event_type, method in (
+        ("unparking", "reverse"),
+        ("parking", "forward"),
+        ("unparking", "forward"),
+        ("parking", "reverse"),
+    ):
+        take_events(
+            (
+                event
+                for event in available_events
+                if _is_detector_positive(event)
+                and event["event_type"] == event_type
+                and event["method"] == method
+            ),
+            25,
+            source_kind="detector_positive",
+            stratum=f"positive:{event_type}:{method}",
+        )
+
+    boundary_events = [event for event in available_events if not _is_detector_positive(event)]
+    for category in ("left_censored", "right_censored"):
+        take_events(
+            (event for event in boundary_events if _boundary_category(event) == category),
+            15,
+            source_kind="boundary",
+            stratum=f"boundary:{category}",
+        )
+
+    random_pool = [
+        track
+        for track in random_tracks
+        if (track["scene_id"], track["agent_token"]) not in excluded_agents
+        and (track["scene_id"], track["agent_token"]) not in used_agents
+    ]
+    random_population = len(random_pool)
+    for track in _balanced_sample(random_pool, 20, rng):
+        selected.append(
+            {
+                "source_kind": "random_track",
+                "scene_id": track["scene_id"],
+                "scene_token": track.get("scene_token"),
+                "agent_token": track["agent_token"],
+                "agent_type": track.get("agent_type"),
+                "event_id": None,
+                "detector_event_type": None,
+                "detector_method": None,
+                "detector_complete": None,
+                "detector_censoring": None,
+                "detector_start_index": None,
+                "detector_end_index": None,
+                "detector_crossing_index": None,
+                "detector_stall_id": None,
+                "sampling_stratum": "random_track",
+                "population_count": random_population,
+                "sample_count": 20,
+                "sampling_weight": random_population / 20,
+            }
+        )
+
+    rng.shuffle(selected)
+    for index, item in enumerate(selected, start=1):
+        item["item_id"] = f"V2-{index:03d}"
+    return selected
+
+
 def _manifest_boundary_category(item: dict) -> str:
     if item["detector_censoring"] == "left":
         return "left_censored"

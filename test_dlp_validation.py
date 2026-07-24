@@ -7,6 +7,7 @@ from dlp.validation import (
     build_random_track_catalog,
     build_review_payload,
     build_validation_manifest,
+    build_v2_validation_manifest,
     load_scene_review_data,
     select_reviewer_subset,
     write_reviewer_package,
@@ -86,6 +87,71 @@ def test_build_validation_manifest_freezes_balanced_150_item_sample():
         ("unparking", "reverse"): 25,
     }
     assert len({(item["scene_id"], item["agent_token"]) for item in first if item["source_kind"] == "random_track"}) == 20
+
+
+def test_build_v2_manifest_is_agent_disjoint_unique_weighted_and_deterministic():
+    events, random_tracks = _synthetic_inputs()
+    next_index = 10_000
+    for censoring, event_type in (("left", "parking"), ("right", "unparking")):
+        for _ in range(4):
+            events.append(
+                _event(
+                    next_index,
+                    event_type,
+                    "unclear",
+                    complete=False,
+                    censoring=censoring,
+                )
+            )
+            next_index += 1
+    duplicate_agent = dict(events[0], event_id="same-agent-second-event")
+    events.append(duplicate_agent)
+    excluded_agents = {
+        (event["scene_id"], event["agent_token"])
+        for event in events[1:5]
+    }
+
+    first = build_v2_validation_manifest(
+        events,
+        random_tracks,
+        excluded_agents=excluded_agents,
+        seed=20260724,
+    )
+    second = build_v2_validation_manifest(
+        events,
+        random_tracks,
+        excluded_agents=excluded_agents,
+        seed=20260724,
+    )
+
+    assert first == second
+    assert len(first) == 150
+    assert [item["item_id"] for item in first] == [f"V2-{i:03d}" for i in range(1, 151)]
+    agents = [(item["scene_id"], item["agent_token"]) for item in first]
+    assert len(set(agents)) == len(agents)
+    assert not (set(agents) & excluded_agents)
+    assert Counter(item["source_kind"] for item in first) == {
+        "detector_positive": 100,
+        "boundary": 30,
+        "random_track": 20,
+    }
+    assert Counter(
+        (item["detector_event_type"], item["detector_method"])
+        for item in first
+        if item["source_kind"] == "detector_positive"
+    ) == {
+        ("parking", "forward"): 25,
+        ("parking", "reverse"): 25,
+        ("unparking", "forward"): 25,
+        ("unparking", "reverse"): 25,
+    }
+    assert Counter(
+        item["sampling_stratum"]
+        for item in first
+        if item["source_kind"] == "boundary"
+    ) == {"boundary:left_censored": 15, "boundary:right_censored": 15}
+    assert all(item["sampling_weight"] > 0 for item in first)
+    assert all(item["population_count"] >= item["sample_count"] for item in first)
 
 
 def test_hugh_subset_is_stratified_and_blind_to_detector_predictions():
