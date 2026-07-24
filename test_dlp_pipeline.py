@@ -5,6 +5,10 @@ import pytest
 
 from dlp.pipeline import (
     Stall,
+    _semantic_parking_end,
+    _semantic_parking_start,
+    _semantic_unparking_end,
+    _semantic_unparking_start,
     classify_stall_crossing,
     detect_trajectory_events,
     discover_scene_prefixes,
@@ -15,6 +19,16 @@ from dlp.pipeline import (
     stall_for_point,
     write_inventory_outputs,
 )
+
+
+def _trajectory_row(index, x, y, speed, heading=0.0):
+    return {
+        "instance_token": f"i{index}",
+        "coords": [x, y],
+        "heading": heading,
+        "speed": speed,
+        "timestamp": index / 10,
+    }
 
 
 def test_discover_scene_prefixes_requires_complete_five_file_bundles(tmp_path: Path):
@@ -131,8 +145,9 @@ def test_detect_trajectory_events_preserves_provenance_and_boundaries():
     assert event.stall_id == stall.stall_id
     assert event.method == "reverse"
     assert event.start_index == 3
-    assert event.end_index == 5
-    assert event.duration_seconds == pytest.approx(2.0)
+    assert event.end_index == 6
+    assert event.legacy_end_index == 5
+    assert event.duration_seconds == pytest.approx(3.0)
     assert event.censoring == "none"
     assert event.complete is True
 
@@ -169,8 +184,9 @@ def test_detect_unparking_classifies_initial_stall_exit():
     assert event.method == "forward"
     assert event.crossing_index == 3
     assert event.start_index == 3
-    assert event.end_index == 5
-    assert event.duration_seconds == pytest.approx(2.0)
+    assert event.end_index == 3
+    assert event.legacy_end_index == 5
+    assert event.duration_seconds == pytest.approx(0.0)
     assert event.complete is True
 
 
@@ -355,3 +371,101 @@ def test_static_run_does_not_claim_departure_after_a_later_parked_run():
 
     assert len(unparking) == 1
     assert unparking[0].start_index == 6
+
+
+def test_semantic_parking_start_ignores_high_speed_approach_turn():
+    stall = Stall("X-R1-C01", "X", 1, 1, 0.0, 2.0, 0.0, 4.0)
+    rows = []
+    for index in range(10):
+        rows.append(_trajectory_row(index, -10 + index * 0.4, 2.0, 3.0))
+    for index in range(10, 20):
+        rows.append(_trajectory_row(index, -6 + (index - 10) * 0.35, 2 + (index - 10) * 0.15, 4.0))
+    for index in range(20, 30):
+        rows.append(_trajectory_row(index, -3 + (index - 20) * 0.2, 3.5, 2.5))
+    for index in range(30, 45):
+        rows.append(_trajectory_row(index, -1 + (index - 30) * 0.08, 3.5 - (index - 30) * 0.15, 1.0))
+
+    start = _semantic_parking_start(rows, stall, legacy_start=25, crossing=40, fps=10)
+
+    assert start == pytest.approx(30, abs=2)
+
+
+def test_semantic_parking_start_detects_sustained_shallow_setup_turn():
+    stall = Stall("X-R1-C01", "X", 1, 1, 0.0, 2.0, 0.0, 4.0)
+    rows = [_trajectory_row(index, -10 + index * 0.4, 2.0, 1.0) for index in range(10)]
+    for index in range(10, 35):
+        step = index - 10
+        rows.append(_trajectory_row(index, -6 + step * 0.38, 2 + step * 0.14, 1.0))
+
+    start = _semantic_parking_start(rows, stall, legacy_start=20, crossing=34, fps=10)
+
+    assert start == pytest.approx(10, abs=2)
+
+
+def test_semantic_parking_end_uses_final_static_run_and_confirmation():
+    stall = Stall("X-R1-C01", "X", 1, 1, 0.0, 2.0, 0.0, 4.0)
+    rows = [_trajectory_row(index, 1.0, 2.0, 0.0) for index in range(20)]
+    rows.extend(
+        _trajectory_row(index, 1.0, 2.0 + (index - 20) * 0.01, 0.20)
+        for index in range(20, 30)
+    )
+    rows.extend(_trajectory_row(index, 1.0, 2.1, 0.0) for index in range(30, 60))
+
+    end = _semantic_parking_end(
+        rows,
+        stall,
+        episode_start=0,
+        episode_end=59,
+        minimum_static_frames=20,
+        fps=10,
+    )
+
+    assert end == 42
+
+
+def test_semantic_unparking_start_waits_for_committed_movement():
+    rows = [_trajectory_row(index, 1.0, 2.0, 0.0) for index in range(10)]
+    rows.extend(
+        _trajectory_row(index, 1.0, 2.0 + (index - 10) * 0.01, 0.12)
+        for index in range(10, 15)
+    )
+    rows.extend(
+        _trajectory_row(index, 1.0, 2.05 + (index - 15) * 0.05, 0.30)
+        for index in range(15, 30)
+    )
+
+    start = _semantic_unparking_start(rows, legacy_start=10, stop=30, fps=10)
+
+    assert start == 15
+
+
+def test_semantic_unparking_start_does_not_jump_to_later_acceleration():
+    rows = [_trajectory_row(index, 1.0, 2.0, 0.0) for index in range(10)]
+    rows.extend(
+        _trajectory_row(index, 1.0, 2.0 + (index - 10) * 0.01, 0.12)
+        for index in range(10, 40)
+    )
+    rows.extend(
+        _trajectory_row(index, 1.0, 2.3 + (index - 40) * 0.05, 0.30)
+        for index in range(40, 60)
+    )
+
+    start = _semantic_unparking_start(rows, legacy_start=10, stop=60, fps=10)
+
+    assert start == 10
+
+
+def test_semantic_unparking_end_uses_established_aisle_travel():
+    stall = Stall("X-R1-C01", "X", 1, 1, 0.0, 2.0, 0.0, 4.0)
+    rows = [
+        _trajectory_row(index, 1.0, 2.0 + index * 0.25, 1.0, heading=1.57)
+        for index in range(20)
+    ]
+    rows.extend(
+        _trajectory_row(index, 1.0 + (index - 20) * 0.25, 7.0, 1.0)
+        for index in range(20, 40)
+    )
+
+    end = _semantic_unparking_end(rows, stall, crossing=10, legacy_end=35, fps=10)
+
+    assert end == pytest.approx(20, abs=2)

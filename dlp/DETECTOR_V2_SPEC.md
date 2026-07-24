@@ -92,6 +92,35 @@ Retain the legacy 8 m envelope for reproducibility, but add explicit semantic fi
 
 State-transition rules remain deterministic. Maneuver-boundary change-point logic must use smoothed heading/path behavior and must be tested independently of the aggregate outcome.
 
+#### Boundary-calibration amendment (2026-07-24)
+
+The sealed 33-item boundary-development package fixed the deterministic state
+transitions as follows. These constants apply globally; there are no per-item
+exceptions in the detector.
+
+- **Parking start:** establish aisle travel over 0.5 s (speed at least
+  0.50 m/s, path within 15 degrees and heading within 20 degrees of the aisle),
+  then select the first 0.5 s transition with either (a) path deviation at
+  least 18 degrees or heading deviation at least 20 degrees while speed is no
+  more than 2.0 m/s, or (b) speed no more than 40% of the established approach
+  baseline. Search history is limited to 5 s before the legacy approach anchor.
+- **Parking end:** use the final qualified static run in the merged same-stall
+  episode, not an earlier in-stall pause, and require 1.2 s of parked-state
+  confirmation.
+- **Unparking start:** select the first 0.6 s of sustained motion at or above
+  0.25 m/s within 2 s of the broad 0.10 m/s movement transition; otherwise
+  preserve the broad transition rather than jumping to a later acceleration.
+- **Unparking end:** select the first 0.2 s outside the stall at speed at least
+  0.75 m/s whose smoothed path is within 30 degrees and heading within
+  15 degrees of the aisle. Fall back to the legacy endpoint when that state is
+  not observed.
+
+Boundary fitting excludes only components that the frozen audit had already
+declared ineligible: annotation-target mismatches and endpoints whose saved
+warning explicitly says the required semantic state was not observed. The
+labels and exclusions remain in the audit; only the affected boundary
+component is omitted from threshold fitting.
+
 ### 4. Validation instrument v2
 
 - Show event-specific instructions dynamically:

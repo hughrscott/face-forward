@@ -1,4 +1,8 @@
 from dlp.build_boundary_calibration_package import select_calibration_items
+from dlp.evaluate_boundary_calibration import (
+    EXCLUDED_BOUNDARIES,
+    summarize_boundary_errors,
+)
 
 
 def _manifest_row(item_id: str, event_id: str) -> dict:
@@ -45,3 +49,36 @@ def test_select_calibration_items_keeps_complete_events_in_original_review_order
     assert [item["review_order"] for item in selected] == [1, 2]
     assert [item["detector_crossing_index"] for item in selected] == [17, 15]
     assert all(item["reviewer"] == "hugh" for item in selected)
+
+
+def test_boundary_error_summary_reports_distribution_and_outliers():
+    summary = summarize_boundary_errors(
+        {
+            "parking_start": [("A", -0.4), ("B", 0.8)],
+            "parking_end": [("C", 2.4)],
+        }
+    )
+
+    assert summary["parking_start"]["median_abs_s"] == 0.6
+    assert summary["parking_end"]["over_2s"] == 1
+    assert summary["overall"] == {
+        "n": 3,
+        "median_abs_s": 0.8,
+        "mean_abs_s": 1.2,
+        "max_abs_s": 2.4,
+        "over_2s": 1,
+    }
+
+
+def test_boundary_calibration_exclusions_are_explicit_and_component_scoped():
+    assert EXCLUDED_BOUNDARIES == {
+        ("VAL-012", "parking_end"): "acknowledged non-sustained parked endpoint",
+        ("VAL-044", "parking_end"): "acknowledged non-sustained parked endpoint",
+        ("VAL-096", "parking_end"): "acknowledged non-sustained parked endpoint",
+        ("VAL-099", "parking_end"): "acknowledged non-sustained parked endpoint",
+        ("VAL-106", "parking_end"): "acknowledged non-sustained parked endpoint",
+        ("VAL-124", "parking_end"): "acknowledged non-sustained parked endpoint",
+        ("VAL-123", "unparking_start"): "annotation-target mismatch",
+        ("VAL-123", "unparking_end"): "annotation-target mismatch",
+        ("VAL-018", "unparking_end"): "acknowledged non-aisle endpoint",
+    }

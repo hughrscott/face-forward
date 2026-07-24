@@ -65,6 +65,8 @@ class EventCandidate:
     method: str
     method_confidence: float
     crossing_index: int | None
+    legacy_start_index: int
+    legacy_end_index: int
     start_index: int
     end_index: int
     start_timestamp: float
@@ -247,6 +249,217 @@ def _first_sustained_movement(
     return None
 
 
+def _axis_difference(angle: float, axis: float) -> float:
+    difference = abs((angle - axis) % math.pi)
+    return min(difference, math.pi - difference)
+
+
+def _stall_axes(stall: Stall) -> tuple[float, float]:
+    """Return the stall's long axis and the perpendicular aisle axis."""
+    long_axis = (
+        math.pi / 2
+        if stall.ymax - stall.ymin >= stall.xmax - stall.xmin
+        else 0.0
+    )
+    return long_axis, (long_axis + math.pi / 2) % math.pi
+
+
+def _path_axis(rows: list[dict], index: int, span_frames: int) -> float | None:
+    lower = max(0, index - span_frames)
+    upper = min(len(rows) - 1, index + span_frames)
+    dx = rows[upper]["coords"][0] - rows[lower]["coords"][0]
+    dy = rows[upper]["coords"][1] - rows[lower]["coords"][1]
+    if math.hypot(dx, dy) < 0.05:
+        return None
+    return math.atan2(dy, dx) % math.pi
+
+
+def _first_sustained_state(
+    states: list[bool],
+    start: int,
+    stop: int,
+    minimum_frames: int,
+    *,
+    minimum_share: float = 0.8,
+) -> int | None:
+    """Return the first mostly-true state window in ``[start, stop)``."""
+    minimum_frames = max(1, minimum_frames)
+    start = max(0, start)
+    stop = min(stop, len(states))
+    for index in range(start, stop - minimum_frames + 1):
+        window = states[index:index + minimum_frames]
+        if sum(window) / minimum_frames >= minimum_share:
+            return index
+    return None
+
+
+def _semantic_parking_start(
+    rows: list[dict],
+    stall: Stall,
+    *,
+    legacy_start: int,
+    crossing: int,
+    fps: float,
+) -> int:
+    """Find the first committed maneuver after established aisle travel."""
+    _, aisle_axis = _stall_axes(stall)
+    path_span = max(1, round(0.2 * fps))
+    path_deviation: list[float | None] = []
+    heading_deviation: list[float] = []
+    for index, row in enumerate(rows):
+        path = _path_axis(rows, index, path_span)
+        path_deviation.append(
+            None if path is None else _axis_difference(path, aisle_axis)
+        )
+        heading_deviation.append(
+            _axis_difference(float(row["heading"]) % math.pi, aisle_axis)
+        )
+
+    history_start = max(0, legacy_start - round(5.0 * fps))
+    search_stop = min(len(rows), crossing + 1)
+    established_stop = min(search_stop, legacy_start + round(2.0 * fps) + 1)
+    established = [
+        row["speed"] >= 0.50
+        and path is not None
+        and path <= math.radians(15)
+        and heading <= math.radians(20)
+        for row, path, heading in zip(rows, path_deviation, heading_deviation)
+    ]
+    established_start = _first_sustained_state(
+        established,
+        history_start,
+        established_stop,
+        round(0.5 * fps),
+    )
+    if established_start is None:
+        return legacy_start
+
+    baseline_stop = min(search_stop, established_start + round(1.5 * fps) + 1)
+    baseline_speeds = [
+        rows[index]["speed"]
+        for index in range(established_start, baseline_stop)
+        if established[index]
+    ]
+    if not baseline_speeds:
+        return legacy_start
+    baseline_speed = median(baseline_speeds)
+
+    angle_change = [
+        row["speed"] <= 2.0
+        and (
+            (path is not None and path >= math.radians(18))
+            or heading >= math.radians(20)
+        )
+        for row, path, heading in zip(rows, path_deviation, heading_deviation)
+    ]
+    deceleration = [
+        row["speed"] <= 0.40 * baseline_speed
+        for row in rows
+    ]
+    sustain_frames = round(0.5 * fps)
+    candidates = [
+        candidate
+        for candidate in (
+            _first_sustained_state(
+                angle_change,
+                established_start,
+                search_stop,
+                sustain_frames,
+            ),
+            _first_sustained_state(
+                deceleration,
+                established_start,
+                search_stop,
+                sustain_frames,
+            ),
+        )
+        if candidate is not None
+    ]
+    return min(candidates) if candidates else legacy_start
+
+
+def _semantic_parking_end(
+    rows: list[dict],
+    stall: Stall,
+    *,
+    episode_start: int,
+    episode_end: int,
+    minimum_static_frames: int,
+    fps: float,
+) -> int:
+    """Return the confirmed parked state in the final static run."""
+    qualified_runs: list[tuple[int, int]] = []
+    run_start: int | None = None
+    for index in range(episode_start, episode_end + 2):
+        is_static = (
+            index <= episode_end
+            and rows[index]["speed"] < 0.05
+            and stall.contains(rows[index]["coords"])
+        )
+        if is_static and run_start is None:
+            run_start = index
+        elif not is_static and run_start is not None:
+            if index - run_start >= minimum_static_frames:
+                qualified_runs.append((run_start, index - 1))
+            run_start = None
+    if not qualified_runs:
+        return episode_start
+    final_start, final_end = qualified_runs[-1]
+    return min(final_end, final_start + round(1.2 * fps))
+
+
+def _semantic_unparking_start(
+    rows: list[dict],
+    *,
+    legacy_start: int,
+    stop: int,
+    fps: float,
+) -> int:
+    """Ignore low-speed jitter and start at sustained committed movement."""
+    committed_movement = [row["speed"] >= 0.25 for row in rows]
+    refinement_stop = min(stop, legacy_start + round(2.0 * fps) + 1)
+    start = _first_sustained_state(
+        committed_movement,
+        legacy_start,
+        refinement_stop,
+        round(0.6 * fps),
+        minimum_share=1.0,
+    )
+    return legacy_start if start is None else start
+
+
+def _semantic_unparking_end(
+    rows: list[dict],
+    stall: Stall,
+    *,
+    crossing: int,
+    legacy_end: int,
+    fps: float,
+) -> int:
+    """End at the first sustained outside-stall aisle-travel state."""
+    _, aisle_axis = _stall_axes(stall)
+    path_span = max(1, round(0.2 * fps))
+    established_aisle: list[bool] = []
+    for index, row in enumerate(rows):
+        path = _path_axis(rows, index, path_span)
+        established_aisle.append(
+            not stall.contains(row["coords"])
+            and row["speed"] >= 0.75
+            and path is not None
+            and _axis_difference(path, aisle_axis) <= math.radians(30)
+            and _axis_difference(float(row["heading"]) % math.pi, aisle_axis)
+            <= math.radians(15)
+        )
+    end = _first_sustained_state(
+        established_aisle,
+        crossing,
+        min(len(rows), legacy_end + round(10.0 * fps) + 1),
+        round(0.2 * fps),
+        minimum_share=1.0,
+    )
+    return legacy_end if end is None else end
+
+
 def detect_trajectory_events(
     scene_id: str,
     scene_token: str,
@@ -286,6 +499,21 @@ def detect_trajectory_events(
                 minimum_motion_samples=min(3, max(1, round(0.12 * fps))),
             )
             crossing_index = None if crossing is None else start + crossing
+            semantic_start = _semantic_parking_start(
+                rows,
+                stall,
+                legacy_start=start,
+                crossing=crossing_index if crossing_index is not None else run_start,
+                fps=fps,
+            )
+            semantic_end = _semantic_parking_end(
+                rows,
+                stall,
+                episode_start=run_start,
+                episode_end=run_end,
+                minimum_static_frames=static_frames,
+                fps=fps,
+            )
             censoring = "left" if left_censored else "none"
             events.append(
                 EventCandidate(
@@ -302,11 +530,16 @@ def detect_trajectory_events(
                     method=method,
                     method_confidence=confidence,
                     crossing_index=crossing_index,
-                    start_index=start,
-                    end_index=run_start,
-                    start_timestamp=float(rows[start]["timestamp"]),
-                    end_timestamp=float(rows[run_start]["timestamp"]),
-                    duration_seconds=float(rows[run_start]["timestamp"] - rows[start]["timestamp"]),
+                    legacy_start_index=start,
+                    legacy_end_index=run_start,
+                    start_index=semantic_start,
+                    end_index=semantic_end,
+                    start_timestamp=float(rows[semantic_start]["timestamp"]),
+                    end_timestamp=float(rows[semantic_end]["timestamp"]),
+                    duration_seconds=float(
+                        rows[semantic_end]["timestamp"]
+                        - rows[semantic_start]["timestamp"]
+                    ),
                     censoring=censoring,
                     complete=not left_censored,
                 )
@@ -338,6 +571,21 @@ def detect_trajectory_events(
                 minimum_motion_samples=min(3, max(1, round(0.12 * fps))),
             )
             crossing_index = None if crossing is None else classification_start + crossing
+            semantic_start = _semantic_unparking_start(
+                rows,
+                legacy_start=movement_start,
+                stop=end + 1,
+                fps=fps,
+            )
+            semantic_end = _semantic_unparking_end(
+                rows,
+                stall,
+                crossing=(
+                    crossing_index if crossing_index is not None else movement_start
+                ),
+                legacy_end=end,
+                fps=fps,
+            )
             censoring = "right" if right_censored else "none"
             events.append(
                 EventCandidate(
@@ -354,11 +602,16 @@ def detect_trajectory_events(
                     method=method,
                     method_confidence=confidence,
                     crossing_index=crossing_index,
-                    start_index=movement_start,
-                    end_index=end,
-                    start_timestamp=float(rows[movement_start]["timestamp"]),
-                    end_timestamp=float(rows[end]["timestamp"]),
-                    duration_seconds=float(rows[end]["timestamp"] - rows[movement_start]["timestamp"]),
+                    legacy_start_index=movement_start,
+                    legacy_end_index=end,
+                    start_index=semantic_start,
+                    end_index=semantic_end,
+                    start_timestamp=float(rows[semantic_start]["timestamp"]),
+                    end_timestamp=float(rows[semantic_end]["timestamp"]),
+                    duration_seconds=float(
+                        rows[semantic_end]["timestamp"]
+                        - rows[semantic_start]["timestamp"]
+                    ),
                     censoring=censoring,
                     complete=not right_censored,
                 )
