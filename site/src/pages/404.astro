@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+import NavBar from '../components/NavBar.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+---
+<Layout title="Page not found" description="The requested Face Forward page could not be found.">
+  <NavBar />
+  <main id="main">
+    <section class="border-b rule">
+      <div class="mx-auto max-w-[1440px] px-5 py-24 lg:px-12 lg:py-36">
+        <p class="eyebrow text-gold">404 · Wrong turn</p>
+        <h1 class="mt-6 max-w-5xl text-5xl leading-[.92] sm:text-6xl lg:text-8xl">This space is not a parking place.</h1>
+        <p class="mt-8 max-w-2xl text-lg leading-8 text-chalk/65">
+          The page has moved, retired, or never existed. The evidence and argument are still where they belong.
+        </p>
+        <a href="/" class="mt-10 inline-flex min-h-12 items-center justify-center bg-gold px-7 text-xs font-bold uppercase tracking-[.14em] text-asphalt hover:bg-chalk">
+          Return home
+        </a>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</Layout>
