@@ -1,17 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  --color-forest: #0D1F17;
-  --color-emerald: #1B3B2B;
-  --color-chalk: #F5F2EB;
-  --color-gold: #E29D2A;
-  --color-slate: #64748B;
+  --color-asphalt: #131316;
+  --color-chalk: #F2F0EA;
+  --color-gold: #E8B62B;
+  --color-concrete: #C9C7C0;
+  --color-paper: #E7E5DF;
+  --color-night: #0E0E10;
 
-  --font-display: "Cinzel", "Plus Jakarta Sans", serif;
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Space Mono", ui-monospace, monospace;
+  /* Compatibility aliases while supporting pages adopt Asphalt & Paint. */
+  --color-forest: #131316;
+  --color-emerald: #202024;
+  --color-slate: #777773;
 
-  --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-display: "Archivo", "Arial Black", sans-serif;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+  --ease-brand: cubic-bezier(0.15, 0.6, 0.15, 1);
 }
 
 @layer base {
@@ -24,14 +30,25 @@
   }
 
   body {
-    background-color: var(--color-forest);
+    min-width: 320px;
+    background-color: var(--color-asphalt);
     color: var(--color-chalk);
     font-family: var(--font-sans);
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+  }
+
+  a, button, summary { -webkit-tap-highlight-color: transparent; }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 4px;
   }
 
   ::selection {
@@ -55,18 +72,42 @@
   }
 
   .rule {
-    border-color: rgba(245, 242, 235, 0.12);
+    border-color: rgba(242, 240, 234, 0.12);
   }
 
   .card-surface {
     background-color: var(--color-emerald);
-    border: 1px solid rgba(245, 242, 235, 0.08);
+    border: 1px solid rgba(242, 240, 234, 0.1);
   }
 
   .metric {
     font-variant-numeric: tabular-nums;
     font-family: var(--font-mono);
   }
+
+  .eyebrow {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .paint-button {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-gold);
+    padding: 0.8rem 1.35rem;
+    color: var(--color-asphalt);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: background-color 180ms ease, color 180ms ease;
+  }
+
+  .paint-button:hover { background: var(--color-chalk); }
 }
 
 @media print {

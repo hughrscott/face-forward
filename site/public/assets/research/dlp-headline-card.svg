@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="875.52pt" height="465.12pt" viewBox="0 0 875.52 465.12" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-25T19:03:43.341445</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.1, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 465.12
+L 875.52 465.12
+L 875.52 0
+L 0 0
+z
+" style="fill: #131316"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 49.824 430.3296
+L 825.696 430.3296
+Q 836.064 430.3296 836.064 424.8864
+L 836.064 40.2336
+Q 836.064 34.7904 825.696 34.7904
+L 49.824 34.7904
+Q 39.456 34.7904 39.456 40.2336
+L 39.456 424.8864
+Q 39.456 430.3296 49.824 430.3296
+z
+" clip-path="url(#pfd94f9056c)" style="fill: #202024; stroke: #3b3b3f; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+  </g>
+  <g id="text_1">
+   <text style="font-weight: 700; font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #e8b62b" x="74.88" y="78.336" transform="rotate(-0 74.88 78.336)">FACE FORWARD · OBSERVED EVIDENCE</text>
+  </g>
+  <g id="text_2">
+   <text style="font-weight: 700; font-size: 79px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #e8b62b" x="74.88" y="159.984" transform="rotate(-0 74.88 159.984)">10.0</text>
+  </g>
+  <g id="text_3">
+   <text style="font-weight: 700; font-size: 23px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #f2f0ea" x="368.64" y="148.644" transform="rotate(-0 368.64 148.644)">SECONDS</text>
+  </g>
+  <g id="text_4">
+   <text style="font-size: 20px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #f2f0ea" x="368.64" y="182.664" transform="rotate(-0 368.64 182.664)">faster, end to end</text>
+  </g>
+  <g id="text_5">
+   <text style="font-weight: 700; font-size: 17px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #f2f0ea" x="74.88" y="264.312" transform="rotate(-0 74.88 264.312)">Nose-in parking averaged 36.2 seconds across entry and exit.</text>
+  </g>
+  <g id="text_6">
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #a7a6a1" x="74.88" y="296.064" transform="rotate(-0 74.88 296.064)">Reverse-entry / nose-out averaged 46.2 seconds.</text>
+  </g>
+  <g id="text_7">
+   <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #f2f0ea" x="74.88" y="368.64" transform="rotate(-0 74.88 368.64)">548 complete events · 30 recordings · Dragon Lake Parking Dataset</text>
+  </g>
+  <g id="text_8">
+   <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #a7a6a1" x="74.88" y="398.124" transform="rotate(-0 74.88 398.124)">Exploratory observed evidence. Parking dwell excluded; lifecycle uses unpaired component means.</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pfd94f9056c">
+   <rect x="5.76" y="5.76" width="864" height="453.6"/>
+  </clipPath>
+ </defs>
+</svg>

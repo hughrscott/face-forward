@@ -2,145 +2,194 @@
 import Layout from '../layouts/Layout.astro';
 import NavBar from '../components/NavBar.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import AnimatedHero from '../components/AnimatedHero.astro';
+import FFMark from '../components/FFMark.astro';
+import TopViewCar from '../components/TopViewCar.astro';
 
-const pillars = [
+const steps = [
   {
-    name: 'Efficiency',
-    body: 'Small improvements scale. Driving directly into a space is often the simpler maneuver — and reversing out into the open aisle asks less of every driver.',
+    number: '01',
+    name: 'Approach',
+    body: 'See the stall. Signal early. Give the aisle a clear idea of what happens next.',
+    state: 'empty',
   },
   {
-    name: 'Courtesy',
-    body: 'Parking lots are shared public spaces. Forward-oriented parking naturally reduces door-to-door conflicts between neighboring vehicles.',
+    number: '02',
+    name: 'Commit',
+    body: 'Turn in once. Make the simple maneuver look as simple as it is.',
+    state: 'turning',
   },
   {
-    name: 'Design',
-    body: 'Much of our parking infrastructure — angled stalls, curbside spaces — was built around the expectation that vehicles enter from the front.',
-  },
-  {
-    name: 'Consistency',
-    body: 'Predictability benefits everyone. Common parking practices make shared spaces easier to read, anticipate, and move through calmly.',
+    number: '03',
+    name: 'Arrive',
+    body: 'Front bumper to the line. Engine off. You came here to be here.',
+    state: 'parked',
   },
 ];
 ---
-<Layout title="Home">
+<Layout
+  title="Home"
+  description="Face facts. Face forward. An observed, design-led civic case for forward-entry, nose-in parking."
+  image="/assets/research/dlp-headline-card.png"
+>
   <NavBar />
   <main id="main">
-    <section class="relative overflow-hidden border-b rule">
-      <div class="mx-auto max-w-6xl px-5 py-16 lg:px-8 lg:py-24">
-        <div class="grid items-center gap-12 lg:grid-cols-2">
-          <div>
-            <p class="font-mono text-xs uppercase tracking-[.22em] text-gold">A civic case for the small choice</p>
-            <h1 class="mt-4 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-              Face Forward.<br /><span class="text-gold">Move Forward.</span>
-            </h1>
-            <p class="mt-6 max-w-lg text-lg leading-relaxed text-chalk/75">
-              Every day, millions of us share parking lots with complete strangers. We believe the way we park is one
-              of the small acts of courtesy that make shared spaces work.
-            </p>
-            <div class="mt-8 flex flex-wrap gap-4">
-              <a
-                href="/manifesto/"
-                class="rounded-sm bg-gold px-6 py-3 text-sm font-semibold uppercase tracking-[.1em] text-forest transition-brand duration-200 hover:brightness-110"
-              >
-                Read the Manifesto
-              </a>
-              <a
-                href="/visualizer/"
-                class="rounded-sm border border-chalk/25 px-6 py-3 text-sm font-semibold uppercase tracking-[.1em] text-chalk transition-brand duration-200 hover:border-gold hover:text-gold"
-              >
-                Explore the Simulator
-              </a>
-            </div>
-          </div>
-          <div class="relative aspect-[4/3] overflow-hidden rounded-sm border rule bg-emerald">
-            <iframe
-              src="/assets/hero-animation.html"
-              title="Face Forward brand identity animation"
-              class="h-full w-full border-0"
-              loading="eager"
-              scrolling="no"
-            ></iframe>
-          </div>
+    <AnimatedHero />
+
+    <section id="finding" class="border-y border-asphalt/15 bg-paper text-asphalt">
+      <div class="mx-auto grid max-w-[1440px] gap-12 px-5 py-20 lg:grid-cols-[.72fr_1.28fr] lg:items-center lg:px-12 lg:py-28">
+        <div>
+          <p class="eyebrow text-asphalt/50">What the data says. A study in parking.</p>
+          <p class="mt-8 font-display text-[clamp(4rem,10vw,9rem)] font-black leading-[.78] tracking-[-.065em] text-gold">10.0</p>
+          <p class="mt-5 font-display text-3xl font-black uppercase tracking-[-.035em] sm:text-4xl">Seconds faster.<br />End to end.</p>
+          <p class="mt-6 max-w-md text-base leading-7 text-asphalt/70">
+            In the Dragon Lake Parking Dataset, forward-entry / nose-in parking averaged 36.2 seconds across entry and exit. Reverse-entry / nose-out averaged 46.2 seconds.
+          </p>
+          <a href="/research/" class="mt-8 inline-flex min-h-11 items-center border-b-2 border-asphalt pb-1 text-xs font-bold uppercase tracking-[.14em] hover:border-gold hover:text-gold">
+            See the evidence <span class="ml-3" aria-hidden="true">→</span>
+          </a>
         </div>
+        <a href="/research/" class="block overflow-hidden border border-asphalt/15 bg-asphalt" aria-label="Read the observed parking timing study">
+          <img
+            src="/assets/research/dlp-lifecycle-comparison.svg"
+            alt="Nose-in parking averaged 36.2 seconds across entry and exit, compared with 46.2 seconds for reverse-entry nose-out parking."
+            class="h-auto w-full transition-brand duration-300 hover:scale-[1.01]"
+            width="1920"
+            height="1200"
+          />
+        </a>
       </div>
     </section>
 
-    <section class="border-b rule bg-emerald/40">
-      <div class="mx-auto max-w-6xl px-5 py-16 lg:px-8">
-        <h2 class="font-display text-2xl font-semibold sm:text-3xl">The Four Pillars</h2>
-        <p class="mt-2 max-w-2xl text-chalk/65">
-          Face Forward is not about winning an argument. It is an invitation to think about the small daily decisions
-          that shape shared public space.
-        </p>
-        <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {pillars.map((p) => (
-            <div class="card-surface rounded-sm p-6">
-              <p class="font-mono text-[11px] uppercase tracking-[.18em] text-gold">{p.name}</p>
-              <p class="mt-3 text-sm leading-relaxed text-chalk/75">{p.body}</p>
-            </div>
+    <section id="position" class="bg-asphalt text-chalk">
+      <div class="mx-auto max-w-[1440px] px-5 py-20 lg:px-12 lg:py-32">
+        <p class="eyebrow text-chalk/45">The position</p>
+        <h2 class="mt-7 max-w-5xl text-[clamp(2.75rem,6.5vw,6.5rem)] leading-[.94] tracking-[-.055em]">
+          We don’t park to exit.<br /><span class="text-gold">We park to arrive.</span><br />Enjoy the destination.
+        </h2>
+        <div class="mt-14 grid max-w-5xl gap-8 text-base leading-8 text-chalk/68 md:grid-cols-2 md:gap-16">
+          <p>
+            A parking lot is a shared public space disguised as an errand. Other drivers are watching your brake lights, turn signals, and hesitation to decipher your intent. Parking face forward is a small courtesy.
+          </p>
+          <p>
+            Driving directly into the stall when the setting allows it makes your arrival legible, predictable, and quick. Park up. Get out. Enjoy the destination.
+          </p>
+        </div>
+        <a href="/manifesto/" class="mt-10 inline-flex min-h-11 items-center text-xs font-bold uppercase tracking-[.14em] text-gold hover:text-chalk">
+          Read the manifesto <span class="ml-3" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="border-y rule bg-night text-chalk">
+      <div class="mx-auto max-w-[1440px] px-5 py-20 lg:px-12 lg:py-28">
+        <p class="eyebrow text-chalk/45">The three-point practice</p>
+        <h2 class="mt-6 text-4xl leading-none sm:text-5xl lg:text-6xl">Clear intent. Courteous action.</h2>
+        <div class="mt-14 grid gap-12 md:grid-cols-3 md:gap-0">
+          {steps.map((step, index) => (
+            <article class:list={['relative border-t-2 border-gold pt-7 md:px-8', index === 0 && 'md:pl-0', index > 0 && 'md:border-l md:border-l-chalk/10']}>
+              <div class="parking-study" aria-hidden="true">
+                <span class="stall"></span>
+                {step.state !== 'empty' && <TopViewCar class={`study-car text-gold ${step.state}`} />}
+              </div>
+              <h3 class="mt-6 text-sm font-black uppercase tracking-[.1em] text-gold">{step.number} — {step.name}</h3>
+              <p class="mt-3 max-w-sm text-sm leading-6 text-chalk/68">{step.body}</p>
+            </article>
           ))}
         </div>
       </div>
     </section>
 
-    <section class="border-b rule">
-      <div class="mx-auto max-w-6xl px-5 py-16 lg:px-8">
-        <div class="grid gap-10 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
-          <div>
-            <p class="font-mono text-xs uppercase tracking-[.18em] text-gold">Featured Article</p>
-            <h2 class="mt-3 font-display text-3xl font-semibold leading-tight">The Geometry of Courtesy</h2>
-            <p class="mt-4 max-w-xl leading-relaxed text-chalk/70">
-              Why the angle at which we enter a parking space says more about how we treat our neighbors than most of
-              us realize — and what the data on forward and reverse maneuvers actually shows.
-            </p>
-            <a href="/articles/the-geometry-of-courtesy/" class="mt-6 inline-block font-semibold text-gold hover:underline">
-              Read the article &rarr;
-            </a>
+    <section class="bg-paper text-asphalt">
+      <div class="mx-auto grid max-w-[1440px] gap-12 px-5 py-20 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:px-12 lg:py-28">
+        <div>
+          <p class="eyebrow text-asphalt/50">The uniform · strawman</p>
+          <h2 class="mt-6 max-w-xl text-4xl leading-[.98] sm:text-5xl lg:text-6xl">Wear the position lightly.</h2>
+          <p class="mt-6 max-w-lg leading-7 text-asphalt/68">
+            One bumper sticker. One wearable. One sign for the lot. The merchandise should feel like an artifact from the world—not a catalog looking for a reason to exist.
+          </p>
+          <a href="/store/" class="mt-8 inline-flex min-h-11 items-center text-xs font-bold uppercase tracking-[.14em] text-asphalt hover:text-gold">
+            View merchandise studies <span class="ml-3" aria-hidden="true">→</span>
+          </a>
+        </div>
+
+        <div class="relative min-h-[360px] overflow-hidden bg-concrete p-5 sm:p-10">
+          <p class="eyebrow text-asphalt/45">250 × 65 mm · rear bumper, ironically</p>
+          <div class="bumper-sticker">
+            <div class="flex items-center gap-5">
+              <FFMark class="text-[52px] text-asphalt sm:text-[70px]" />
+              <div>
+                <p class="font-display text-3xl font-black leading-none tracking-[-.045em] sm:text-5xl">FACE</p>
+                <p class="font-display text-3xl font-black leading-none tracking-[-.045em] sm:text-5xl">FORWARD</p>
+              </div>
+            </div>
+            <div class="border-l-[3px] border-asphalt pl-5 text-xs font-bold uppercase leading-5 tracking-[.12em]">Park<br />nose-in.</div>
           </div>
-          <div class="card-surface rounded-sm p-8">
-            <p class="metric text-5xl text-gold">7&nbsp;min</p>
-            <p class="mt-2 text-sm uppercase tracking-[.14em] text-chalk/50">read time</p>
-            <div class="mt-6 h-px w-full rule border-t"></div>
-            <p class="mt-6 text-sm leading-relaxed text-chalk/70">
-              Backed by a 10,000-run Monte Carlo kinematic simulation comparing forward and reverse parking maneuvers
-              across pedestrian density, aisle width, and visibility conditions.
-            </p>
-          </div>
+          <p class="absolute bottom-5 right-5 text-[10px] font-bold uppercase tracking-[.16em] text-asphalt/45">Placeholder product rendering</p>
         </div>
       </div>
     </section>
 
-    <section class="border-b rule bg-emerald/40">
-      <div class="mx-auto max-w-6xl px-5 py-16 lg:px-8">
-        <div class="card-surface flex flex-col items-start gap-6 rounded-sm p-8 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 class="font-display text-2xl font-semibold">Join the conversation</h2>
-            <p class="mt-2 max-w-md text-sm leading-relaxed text-chalk/70">
-              One thoughtful note a month. No noise, no pressure — just the occasional idea worth sitting with.
-            </p>
-          </div>
-          <form action="https://buttondown.email/api/emails/embed-subscribe/faceforward" method="post" target="popupwindow"
-            onsubmit="window.open('https://buttondown.email/faceforward', 'popupwindow')"
-            class="flex w-full max-w-sm gap-2 sm:w-auto">
-            <label class="sr-only" for="newsletter-email">Email address</label>
-            <input
-              id="newsletter-email"
-              type="email"
-              name="email"
-              required
-              placeholder="you@example.com"
-              class="w-full rounded-sm border border-chalk/25 bg-forest px-4 py-3 text-sm text-chalk placeholder:text-chalk/40 focus:border-gold focus:outline-none"
-            />
-            <button
-              type="submit"
-              class="whitespace-nowrap rounded-sm bg-gold px-5 py-3 text-sm font-semibold uppercase tracking-[.08em] text-forest transition-brand duration-200 hover:brightness-110"
-            >
-              Subscribe
-            </button>
-          </form>
+    <section class="bg-gold text-asphalt">
+      <div class="mx-auto flex max-w-[1440px] flex-col justify-between gap-10 px-5 py-16 md:flex-row md:items-end lg:px-12 lg:py-20">
+        <div>
+          <p class="eyebrow text-asphalt/55">The invitation</p>
+          <h2 class="mt-5 text-4xl leading-none sm:text-5xl lg:text-6xl">Forward, together.</h2>
+          <p class="mt-4 max-w-xl text-base leading-7 text-asphalt/68">Try the simpler arrival. Notice what changes. Keep your exceptions and your sense of humor.</p>
         </div>
+        <a href="/manifesto/" class="inline-flex min-h-12 flex-none items-center justify-center bg-asphalt px-7 text-xs font-bold uppercase tracking-[.14em] text-chalk hover:bg-chalk hover:text-asphalt">Take the position</a>
       </div>
     </section>
   </main>
   <SiteFooter />
 </Layout>
+
+<style>
+  .parking-study {
+    position: relative;
+    height: 84px;
+  }
+
+  .stall {
+    position: absolute;
+    left: 0;
+    top: 20px;
+    width: 132px;
+    height: 48px;
+    border: 2px dashed rgba(242, 240, 234, 0.3);
+  }
+
+  :global(.study-car) {
+    position: absolute;
+    left: 48px;
+    top: 28px;
+    width: 104px;
+    height: 32px;
+  }
+
+  :global(.study-car.turning) { transform: rotate(-11deg); }
+  :global(.study-car.parked) { left: 13px; }
+
+
+  .bumper-sticker {
+    position: absolute;
+    left: 5%;
+    right: 5%;
+    top: 50%;
+    display: flex;
+    min-height: 132px;
+    transform: translateY(-42%) rotate(-2deg);
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    border: 4px solid #131316;
+    background: #E8B62B;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 10px 12px 0 rgba(19, 19, 22, 0.15);
+  }
+
+  @media (max-width: 520px) {
+    .bumper-sticker { left: 4%; right: 4%; gap: 1rem; padding: 1rem; }
+    .bumper-sticker > div:last-child { display: none; }
+  }
+</style>

@@ -1,0 +1,75 @@
+{
+  "contrasts": {
+    "entry_forward_minus_reverse_seconds": -21.184335622573904,
+    "exit_forward_minus_reverse_seconds": -11.180698996655517,
+    "nose_in_lifecycle_seconds": 36.19889592760181,
+    "nose_in_minus_nose_out_seconds": -10.003636625918384,
+    "nose_out_lifecycle_seconds": 46.20253255352019,
+    "trimmed_10_nose_in_minus_nose_out_seconds": -9.750943396226413
+  },
+  "groups": {
+    "parking:forward": {
+      "mean_seconds": 15.610588235294118,
+      "median_seconds": 10.839999999999975,
+      "n": 102,
+      "trimmed_10_mean_seconds": 12.200000000000001
+    },
+    "parking:reverse": {
+      "mean_seconds": 36.79492385786802,
+      "median_seconds": 29.680000000000007,
+      "n": 197,
+      "trimmed_10_mean_seconds": 32.449056603773585
+    },
+    "unparking:forward": {
+      "mean_seconds": 9.407608695652174,
+      "median_seconds": 7.840000000000003,
+      "n": 184,
+      "trimmed_10_mean_seconds": 8.159999999999998
+    },
+    "unparking:reverse": {
+      "mean_seconds": 20.58830769230769,
+      "median_seconds": 16.879999999999995,
+      "n": 65,
+      "trimmed_10_mean_seconds": 18.658113207547167
+    }
+  },
+  "inputs": {
+    "bootstrap_draws": 10000,
+    "candidate_events": 635,
+    "primary_events": 548,
+    "seed": 20260724
+  },
+  "scene_cluster_bootstrap": {
+    "ci95_seconds": [
+      -16.10795482991803,
+      -3.7180174629134983
+    ],
+    "probability_beyond_minus_2_seconds": 0.9953,
+    "probability_nose_in_faster": 0.9994,
+    "successful_draws": 10000
+  },
+  "sensitivity": {
+    "adverse_fp_plus_observed_boundary_medians_seconds": -2.809281040987793,
+    "adverse_fp_plus_one_second_each_boundary_seconds": -0.569281040987784,
+    "adverse_strict_primary_false_positive": {
+      "contrast_seconds": -8.569281040987784,
+      "removed_forward_parking": 13
+    },
+    "interpretation": "Negative favors nose-in; values below -2 s exceed the frozen practical margin.",
+    "raw_plus_observed_boundary_medians_seconds": -4.243636625918393
+  },
+  "status": "exploratory_not_formally_validated",
+  "validation": {
+    "broad_weighted_precision": 0.9220430107526881,
+    "broad_weighted_recall": 1.0,
+    "forward_parking_false_positive_rate": 0.125,
+    "strict_primary_weighted_precision": 0.9798288508557457,
+    "timing_components": 60,
+    "weighted_boundary_median_seconds": {
+      "end": 0.9200000000000159,
+      "overall": 0.5600000000000023,
+      "start": 0.5199999999999818
+    },
+    "weighted_method_accuracy": 0.9545184304399524
+  }
+}

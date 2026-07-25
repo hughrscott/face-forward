@@ -2,59 +2,81 @@
 import Layout from '../../layouts/Layout.astro';
 import NavBar from '../../components/NavBar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
-
-const products = [
-  { name: 'Double-F Embroidered Cap', price: '$32', blurb: 'Structured six-panel cap, embroidered Double-F mark.' },
-  { name: 'Classic Polo', price: '$58', blurb: 'Pique cotton polo with a subtle chest-embroidered wordmark.' },
-  { name: 'Enamel Pin Set', price: '$14', blurb: 'Three-piece enamel pin set: Double-F, F-bar, and wordmark.' },
-];
+import FFMark from '../../components/FFMark.astro';
 ---
-<Layout title="Store" description="Considered merchandise from Face Forward — caps, polos, and pins.">
+<Layout title="Merchandise" description="Three restrained Face Forward merchandise studies: a bumper sticker, a wearable, and a parking-lot sign.">
   <NavBar />
   <main id="main">
-    <div class="mx-auto max-w-6xl px-5 py-16 lg:px-8 lg:py-20">
-      <p class="font-mono text-xs uppercase tracking-[.22em] text-gold">The Store</p>
-      <h1 class="mt-2 font-display text-4xl font-semibold sm:text-5xl">Considered merchandise.</h1>
-      <p class="mt-4 max-w-2xl leading-relaxed text-chalk/70">
-        Not novelty products. Pieces you'd wear even if you'd never heard of the movement.
-      </p>
-
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {products.map((p) => (
-          <div class="card-surface flex flex-col rounded-sm p-6">
-            <div class="flex aspect-square items-center justify-center rounded-sm border rule bg-forest">
-              <img src="/assets/logo-wordmark.png" alt={p.name} class="w-2/3 opacity-90" loading="lazy" />
-            </div>
-            <h2 class="mt-5 font-display text-lg font-semibold">{p.name}</h2>
-            <p class="mt-2 flex-1 text-sm leading-relaxed text-chalk/65">{p.blurb}</p>
-            <div class="mt-4 flex items-center justify-between">
-              <span class="metric text-lg text-gold">{p.price}</span>
-              <a
-                href="https://faceforward.printful.me"
-                target="_blank"
-                rel="noreferrer"
-                class="rounded-sm border border-gold/50 px-4 py-2 text-xs font-semibold uppercase tracking-[.1em] text-gold transition-brand duration-200 hover:bg-gold hover:text-forest"
-              >
-                View
-              </a>
-            </div>
-          </div>
-        ))}
+    <header class="border-b rule">
+      <div class="mx-auto max-w-[1440px] px-5 py-20 lg:px-12 lg:py-28">
+        <p class="eyebrow text-gold">The uniform · design studies</p>
+        <h1 class="mt-6 max-w-4xl text-5xl leading-[.92] sm:text-6xl lg:text-8xl">Artifacts from the position.</h1>
+        <p class="mt-8 max-w-2xl text-lg leading-8 text-chalk/65">
+          Not a store. Not yet. Three objects are enough to test whether the world of Face Forward belongs off-screen.
+        </p>
       </div>
+    </header>
 
-      <div class="mt-14 card-surface rounded-sm p-8 text-center">
-        <p class="font-display text-lg font-semibold">Full storefront hosted on Printful</p>
-        <p class="mt-2 text-sm text-chalk/65">Checkout, sizing, and fulfillment are handled by our Printful storefront.</p>
-        <a
-          href="https://faceforward.printful.me"
-          target="_blank"
-          rel="noreferrer"
-          class="mt-5 inline-block rounded-sm bg-gold px-6 py-3 text-sm font-semibold uppercase tracking-[.1em] text-forest transition-brand duration-200 hover:brightness-110"
-        >
-          Shop the Full Collection
-        </a>
+    <section class="bg-paper text-asphalt">
+      <div class="mx-auto max-w-[1440px] px-5 py-20 lg:px-12 lg:py-28">
+        <div class="grid gap-16 lg:grid-cols-3 lg:gap-8">
+          <article>
+            <p class="eyebrow text-asphalt/45">01 · Bumper sticker</p>
+            <div class="mt-6 flex aspect-[4/3] items-center bg-concrete p-7">
+              <div class="w-full rotate-[-2deg] border-[3px] border-asphalt bg-gold p-4 shadow-[7px_8px_0_rgba(19,19,22,.16)]">
+                <div class="flex items-center gap-4">
+                  <FFMark class="text-[42px] text-asphalt" />
+                  <p class="font-display text-2xl font-black leading-[.88] tracking-[-.04em]">FACE<br />FORWARD</p>
+                </div>
+              </div>
+            </div>
+            <h2 class="mt-6 text-2xl">The rear-bumper irony.</h2>
+            <p class="mt-3 text-sm leading-6 text-asphalt/65">250 × 65 mm. Safety Gold on asphalt. The smallest complete version of the idea.</p>
+            <p class="mt-5 text-[11px] font-bold uppercase tracking-[.16em] text-asphalt/45">Placeholder · production file pending</p>
+          </article>
+
+          <article>
+            <p class="eyebrow text-asphalt/45">02 · Wearable</p>
+            <div class="relative mt-6 flex aspect-[4/3] items-center justify-center overflow-hidden bg-asphalt">
+              <span class="absolute left-1/2 top-0 h-16 w-32 -translate-x-1/2 rounded-b-[50%] border-x border-b border-chalk/15"></span>
+              <div class="absolute left-[24%] top-[38%]">
+                <FFMark class="text-[54px] text-gold" />
+                <p class="mt-3 text-[9px] font-bold uppercase tracking-[.16em] text-chalk/40">58 mm embroidery</p>
+              </div>
+            </div>
+            <h2 class="mt-6 text-2xl">Quietly on the left.</h2>
+            <p class="mt-3 text-sm leading-6 text-asphalt/65">A polo or heavyweight overshirt. Double-F mark only. No slogan required.</p>
+            <p class="mt-5 text-[11px] font-bold uppercase tracking-[.16em] text-asphalt/45">Placeholder · garment selection pending</p>
+          </article>
+
+          <article>
+            <p class="eyebrow text-asphalt/45">03 · Lot sign</p>
+            <div class="mt-6 flex aspect-[4/3] items-center justify-center bg-concrete p-7">
+              <div class="flex aspect-[2/3] h-[84%] flex-col justify-between border-[3px] border-asphalt bg-gold p-5 text-asphalt shadow-[7px_8px_0_rgba(19,19,22,.16)]">
+                <FFMark class="text-[46px]" />
+                <div>
+                  <p class="font-display text-2xl font-black leading-[.9]">FACE<br />FORWARD<br />ONLY</p>
+                  <p class="mt-4 border-t-2 border-asphalt pt-3 text-[8px] font-bold uppercase leading-3 tracking-[.1em]">Violators will be<br />quietly noticed.</p>
+                </div>
+              </div>
+            </div>
+            <h2 class="mt-6 text-2xl">For one agreeable lot.</h2>
+            <p class="mt-3 text-sm leading-6 text-asphalt/65">300 × 450 mm aluminum. A real-world sign study, not the beginning of a partner program.</p>
+            <p class="mt-5 text-[11px] font-bold uppercase tracking-[.16em] text-asphalt/45">Placeholder · site test pending</p>
+          </article>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <section class="bg-gold text-asphalt">
+      <div class="mx-auto flex max-w-[1440px] flex-col justify-between gap-8 px-5 py-16 sm:flex-row sm:items-end lg:px-12">
+        <div>
+          <p class="eyebrow text-asphalt/55">First edition discipline</p>
+          <h2 class="mt-4 text-4xl sm:text-5xl">Three objects. Then stop.</h2>
+        </div>
+        <a href="/about/#contact" class="inline-flex min-h-12 items-center justify-center bg-asphalt px-7 text-xs font-bold uppercase tracking-[.14em] text-chalk hover:bg-chalk hover:text-asphalt">Tell me what earns production</a>
+      </div>
+    </section>
   </main>
   <SiteFooter />
 </Layout>

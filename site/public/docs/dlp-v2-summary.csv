@@ -1,0 +1,9 @@
+metric,value
+nose_in_lifecycle_mean_seconds,36.19889592760181
+nose_out_lifecycle_mean_seconds,46.20253255352019
+nose_in_minus_nose_out_seconds,-10.003636625918384
+bootstrap_ci95_low_seconds,-16.10795482991803
+bootstrap_ci95_high_seconds,-3.7180174629134983
+broad_weighted_precision,0.9220430107526881
+strict_primary_weighted_precision,0.9798288508557457
+weighted_boundary_median_seconds,0.5600000000000023

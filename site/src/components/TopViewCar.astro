@@ -1,0 +1,69 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+<span class:list={['top-view-car', className]} aria-hidden="true">
+  <i class="cabin"></i>
+  <i class="wheel wheel-front-top"></i>
+  <i class="wheel wheel-front-bottom"></i>
+  <i class="wheel wheel-rear-top"></i>
+  <i class="wheel wheel-rear-bottom"></i>
+  <i class="lamp lamp-top"></i>
+  <i class="lamp lamp-bottom"></i>
+</span>
+
+<style>
+  .top-view-car {
+    position: absolute;
+    display: block;
+    box-sizing: border-box;
+    background: currentColor;
+    border: 1px solid rgba(19, 19, 22, 0.8);
+    border-radius: 22% 10% 10% 22%;
+    box-shadow: inset -2px 0 rgba(19, 19, 22, 0.18);
+  }
+
+  .top-view-car i {
+    position: absolute;
+    display: block;
+    box-sizing: border-box;
+  }
+
+  .cabin {
+    left: 27%;
+    top: 13%;
+    width: 44%;
+    height: 74%;
+    border: 1px solid rgba(19, 19, 22, 0.28);
+    border-radius: 14%;
+    background:
+      linear-gradient(90deg, rgba(242, 240, 234, 0.5) 0 8%, transparent 8% 88%, rgba(19, 19, 22, 0.22) 88% 100%),
+      rgba(19, 19, 22, 0.28);
+  }
+
+  .wheel {
+    width: 17%;
+    height: 12%;
+    border-radius: 999px;
+    background: #09090B;
+  }
+
+  .wheel-front-top { left: 15%; top: -7%; }
+  .wheel-front-bottom { left: 15%; bottom: -7%; }
+  .wheel-rear-top { right: 13%; top: -7%; }
+  .wheel-rear-bottom { right: 13%; bottom: -7%; }
+
+  .lamp {
+    left: 2%;
+    width: 5%;
+    height: 18%;
+    border-radius: 999px;
+    background: rgba(242, 240, 234, 0.82);
+  }
+
+  .lamp-top { top: 17%; }
+  .lamp-bottom { bottom: 17%; }
+</style>

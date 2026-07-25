@@ -1,0 +1,195 @@
+---
+import TopViewCar from './TopViewCar.astro';
+---
+<section id="ff-hero" class="ff-hero ff-play" data-ff-hero aria-labelledby="hero-message">
+  <p class="ff-kicker">A public service campaign for the shared aisle</p>
+
+  <div class="ff-lockup" aria-label="Face Forward">
+    <div class="ff-row">
+      <div class="ff-letterform" aria-hidden="true">
+        <i class="stem"></i><i class="bar top"></i><i class="bar middle"></i>
+        <i class="slot slot-a"></i><i class="slot slot-b"></i>
+        <TopViewCar class="car car-a text-gold" /><TopViewCar class="car car-b text-concrete" />
+      </div>
+      <span class="ff-word word-a">ACE</span>
+    </div>
+    <div class="ff-row ff-row-bottom">
+      <div class="ff-letterform" aria-hidden="true">
+        <i class="stem"></i><i class="bar top"></i><i class="bar middle"></i>
+        <i class="slot slot-a"></i><i class="slot slot-b"></i>
+        <TopViewCar class="car car-c text-chalk" /><TopViewCar class="car car-d text-gold" />
+      </div>
+      <span class="ff-word word-b">ORWARD</span>
+    </div>
+  </div>
+
+  <div id="hero-message" class="ff-message">
+    <h1>Face facts. Face forward.</h1>
+    <p>Follow your nose. A small choice with a big impact.</p>
+  </div>
+
+  <a href="#finding" class="ff-scroll">The evidence <span aria-hidden="true">↓</span></a>
+</section>
+
+<script>
+  document.querySelectorAll('[data-ff-hero]').forEach((hero) => {
+    let leftViewport = false;
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.intersectionRatio < 0.1) leftViewport = true;
+        if (leftViewport && entry.intersectionRatio > 0.5) {
+          leftViewport = false;
+          hero.classList.remove('ff-play');
+          requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add('ff-play')));
+        }
+      }
+    }, { threshold: [0, 0.1, 0.6] });
+    observer.observe(hero);
+  });
+</script>
+
+<style>
+  .ff-hero {
+    position: relative;
+    min-height: 680px;
+    height: calc(100svh - 73px);
+    max-height: 980px;
+    overflow: hidden;
+    background: #131316;
+    color: #F2F0EA;
+  }
+
+  .ff-kicker {
+    position: absolute;
+    top: clamp(1.75rem, 5vh, 2.75rem);
+    left: clamp(1.25rem, 4vw, 3rem);
+    margin: 0;
+    color: rgba(242, 240, 234, 0.48);
+    font: 500 0.72rem/1.2 "Space Grotesk", sans-serif;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .ff-lockup {
+    position: absolute;
+    top: clamp(7rem, 15vh, 9.5rem);
+    left: clamp(1.25rem, 7vw, 5.625rem);
+  }
+
+  .ff-row {
+    display: flex;
+    align-items: baseline;
+  }
+
+  .ff-row-bottom { margin-top: clamp(1rem, 2vw, 1.875rem); }
+
+  .ff-letterform {
+    position: relative;
+    width: clamp(3.5rem, 6.5vw, 6rem);
+    height: clamp(5.5rem, 10.2vw, 9.375rem);
+    flex: none;
+  }
+
+  .ff-letterform i { position: absolute; display: block; }
+  .stem { inset: 0 auto 0 0; width: 31.25%; background: currentColor; }
+  .bar { left: 31.25%; width: 68.75%; height: 20%; background: currentColor; }
+  .bar.top { top: 0; }
+  .bar.middle { top: 40%; }
+  .slot {
+    left: 32.3%;
+    width: 62.5%;
+    height: 16%;
+    border: 2px dashed rgba(242, 240, 234, 0.3);
+    opacity: 0;
+  }
+  .slot-a { top: 20.7%; }
+  .slot-b { top: 60.7%; }
+  .ff-letterform :global(.car) {
+    left: 35.4%;
+    width: 60.4%;
+    height: 16.7%;
+    transform: translateX(110vw);
+  }
+  .ff-letterform :global(.car-a), .ff-letterform :global(.car-c) { top: 21.7%; }
+  .ff-letterform :global(.car-b), .ff-letterform :global(.car-d) { top: 61.7%; }
+
+  .ff-word {
+    display: inline-block;
+    margin-left: clamp(0.35rem, 0.7vw, 0.5rem);
+    color: #F2F0EA;
+    font: 900 clamp(5.25rem, 14.7vw, 13.625rem)/0.72 Archivo, sans-serif;
+    letter-spacing: -0.045em;
+  }
+
+  .ff-message {
+    position: absolute;
+    left: clamp(1.25rem, 7.2vw, 5.75rem);
+    bottom: clamp(5.5rem, 10vh, 6rem);
+    max-width: min(820px, 78vw);
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .ff-message h1 {
+    margin: 0;
+    color: #F2F0EA;
+    font: 900 clamp(2rem, 3.4vw, 3.25rem)/1.03 Archivo, sans-serif;
+    letter-spacing: -0.035em;
+  }
+  .ff-message p {
+    margin: 0.85rem 0 0;
+    color: #E8B62B;
+    font: 700 clamp(0.68rem, 1vw, 0.82rem)/1.45 "Space Grotesk", sans-serif;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .ff-scroll {
+    position: absolute;
+    right: clamp(1.25rem, 4vw, 3rem);
+    bottom: 2.6rem;
+    color: rgba(242, 240, 234, 0.42);
+    font: 500 0.68rem/1 "Space Grotesk", sans-serif;
+    letter-spacing: 0.18em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .ff-play .word-a { animation: ff-text-a 6.5s both; }
+  .ff-play .word-b { animation: ff-text-b 6.5s both; }
+  .ff-play .slot { animation: ff-slot 6.5s both; }
+  .ff-play :global(.car-a) { animation: ff-car-a 6.5s both; }
+  .ff-play :global(.car-b) { animation: ff-car-b 6.5s both; }
+  .ff-play :global(.car-c) { animation: ff-car-c 6.5s both; }
+  .ff-play :global(.car-d) { animation: ff-car-d 6.5s both; }
+  .ff-play .ff-message { animation: ff-tag 6.5s both; }
+
+  @keyframes ff-text-a {
+    0%, 15% { transform: none; opacity: 1; animation-timing-function: cubic-bezier(.55, 0, .85, .36); }
+    36%, 100% { transform: translateX(70vw); opacity: 0; }
+  }
+  @keyframes ff-text-b {
+    0%, 19% { transform: none; opacity: 1; animation-timing-function: cubic-bezier(.55, 0, .85, .36); }
+    40%, 100% { transform: translateX(70vw); opacity: 0; }
+  }
+  @keyframes ff-slot { 0%, 30% { opacity: 0; } 42%, 100% { opacity: 1; } }
+  @keyframes ff-car-a { 0%, 32% { transform: translateX(110vw); animation-timing-function: cubic-bezier(.15, .6, .15, 1); } 55%, 100% { transform: none; } }
+  @keyframes ff-car-b { 0%, 38% { transform: translateX(110vw); animation-timing-function: cubic-bezier(.15, .6, .15, 1); } 61%, 100% { transform: none; } }
+  @keyframes ff-car-c { 0%, 44% { transform: translateX(110vw); animation-timing-function: cubic-bezier(.15, .6, .15, 1); } 67%, 100% { transform: none; } }
+  @keyframes ff-car-d { 0%, 50% { transform: translateX(110vw); animation-timing-function: cubic-bezier(.15, .6, .15, 1); } 73%, 100% { transform: none; } }
+  @keyframes ff-tag { 0%, 76% { opacity: 0; transform: translateY(14px); } 90%, 100% { opacity: 1; transform: none; } }
+
+  @media (max-width: 640px) {
+    .ff-hero { min-height: 650px; height: calc(100svh - 65px); }
+    .ff-kicker { max-width: 18rem; line-height: 1.55; }
+    .ff-lockup { top: 9.5rem; }
+    .ff-message { bottom: 6.5rem; max-width: calc(100vw - 2.5rem); }
+    .ff-scroll { right: auto; left: 1.25rem; bottom: 2.35rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ff-word { display: none; }
+    .slot { opacity: 1; }
+    :global(.car) { transform: none; }
+    .ff-message { opacity: 1; transform: none; }
+  }
+</style>

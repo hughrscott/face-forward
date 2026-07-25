@@ -3,15 +3,12 @@
 Astro 7 + Tailwind CSS v4 static site for parkfaceforward.org.
 
 ## Structure
-- `src/pages/` — route pages (home, manifesto, articles, visualizer, research, get-involved, store, about, press, faq)
-- `src/content/articles/` — markdown articles (content collection)
-- `src/components/` — NavBar, SiteFooter
+- `src/pages/` — exactly five First Edition routes: home, evidence, manifesto, merchandise, and about
+- `src/components/` — shared navigation, footer, brand mark, top-view car, and animated hero
 - `src/layouts/Layout.astro` — shared head/shell
-- `src/styles/global.css` — design tokens (forest/emerald/chalk/gold/slate), fonts, print styles
-- `public/assets/hero-animation.html` — autoplay Double-F hero animation (iframe embed, loops, respects prefers-reduced-motion)
-- `public/visualizer/embed/` — the p5.js Maneuver Observatory dashboard (iframe embed for /visualizer/)
-- `public/visualizer/vehicle.js`, `public/visualizer/canonical_paths.json` — simulation data/renderer, ported from `web/`
-- `public/docs/methodology.pdf` — whitepaper
+- `src/styles/global.css` — locked Asphalt & Paint design tokens, fonts, and print styles
+- `src/components/AnimatedHero.astro` — autoplay Double-F hero animation (scroll replay, reduced-motion support)
+- The earlier simulator and simulation whitepaper are intentionally excluded from the public First Edition site; the Evidence page summarizes the observed-study workflow instead.
 
 ## Commands
 - `npm run dev` — dev server
@@ -19,7 +16,5 @@ Astro 7 + Tailwind CSS v4 static site for parkfaceforward.org.
 - `npm run preview` — preview the build
 
 ## Notes
-- Visualizer URL state: `/visualizer/?aisle=6.35&ped=0.18&suv=40&speed=1.0` forwards params into the embed iframe; the embed posts state changes back via `postMessage` so the parent page URL stays in sync. Permalink button copies `window.location.href`.
 - Manifesto page uses `window.print()` (native browser print-to-PDF) rather than a static PDF link, since no PDF export of the manifesto exists yet.
-- Store, Get Involved (pledge/story), and newsletter forms point to placeholder third-party endpoints (Buttondown, Printful, Google Forms) — swap in real account URLs before launch.
-- Press kit and Chapter Starter Kit downloads reference `/docs/press-kit.zip`, `/docs/one-pager.pdf`, `/docs/chapter-starter-kit.pdf` which do not exist yet — need real assets from brand/writer workstreams before these links go live.
+- The Evidence page&rsquo;s four-step “How the study was made” section is the concise methodology overview; no separate one-pager or working paper is promised.

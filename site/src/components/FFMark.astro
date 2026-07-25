@@ -1,0 +1,50 @@
+---
+interface Props {
+  class?: string;
+  label?: string;
+}
+
+const { class: className = '', label } = Astro.props;
+---
+<span class:list={['ff-mark', className]} role={label ? 'img' : undefined} aria-label={label} aria-hidden={label ? undefined : 'true'}>
+  <span class="ff-letter"><i></i><i></i><i></i></span>
+  <span class="ff-letter"><i></i><i></i><i></i></span>
+</span>
+
+<style>
+  .ff-mark {
+    display: inline-flex;
+    flex: none;
+    gap: 0.16em;
+    height: 1em;
+    line-height: 1;
+  }
+
+  .ff-letter {
+    position: relative;
+    display: inline-block;
+    width: 0.65em;
+    height: 1em;
+  }
+
+  .ff-letter i {
+    position: absolute;
+    display: block;
+    background: currentColor;
+  }
+
+  .ff-letter i:nth-child(1) {
+    inset: 0 auto 0 0;
+    width: 0.2em;
+  }
+
+  .ff-letter i:nth-child(2),
+  .ff-letter i:nth-child(3) {
+    left: 0.2em;
+    width: 0.45em;
+    height: 0.2em;
+  }
+
+  .ff-letter i:nth-child(2) { top: 0; }
+  .ff-letter i:nth-child(3) { top: 0.4em; }
+</style>

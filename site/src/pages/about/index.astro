@@ -3,49 +3,50 @@ import Layout from '../../layouts/Layout.astro';
 import NavBar from '../../components/NavBar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 ---
-<Layout title="About" description="Mission, values, and leadership behind Face Forward.">
+<Layout title="About" description="A study in parking, designed to inform and educate on the benefits of parking face forward.">
   <NavBar />
   <main id="main">
-    <div class="mx-auto max-w-3xl px-5 py-16 lg:px-8 lg:py-20">
-      <p class="font-mono text-xs uppercase tracking-[.22em] text-gold">About</p>
-      <h1 class="mt-2 font-display text-4xl font-semibold sm:text-5xl">Small choices. Better communities.</h1>
-
-      <section class="mt-12">
-        <h2 class="font-display text-2xl font-semibold">Mission</h2>
-        <p class="mt-3 leading-relaxed text-chalk/75">
-          Face Forward is a civic organization dedicated to promoting thoughtful parking through education,
-          discussion, and advocacy. We believe that small acts of consideration &mdash; however ordinary they may
-          seem &mdash; help build stronger, more courteous communities.
+    <header class="border-b rule">
+      <div class="mx-auto max-w-[1440px] px-5 py-20 lg:px-12 lg:py-28">
+        <p class="eyebrow text-gold">About the project</p>
+        <h1 class="mt-6 max-w-5xl text-5xl leading-[.92] sm:text-6xl lg:text-8xl">A serious inquiry into a very small choice.</h1>
+        <p class="mt-8 max-w-2xl text-lg leading-8 text-chalk/65">
+          Face Forward is an independent civic design and research project. It began with a slightly unreasonable opinion about parking and became an experiment in evidence, advocacy, and creativity.
         </p>
-      </section>
+      </div>
+    </header>
 
-      <section class="mt-10">
-        <h2 class="font-display text-2xl font-semibold">Values</h2>
-        <ul class="mt-4 grid gap-3 sm:grid-cols-2">
-          {['Thoughtful', 'Optimistic', 'Civic-minded', 'Calm', 'Intelligent', 'Welcoming', 'Practical', 'Quietly confident'].map((v) => (
-            <li class="card-surface rounded-sm px-4 py-3 text-sm text-chalk/80">{v}</li>
-          ))}
-        </ul>
-        <p class="mt-4 text-sm leading-relaxed text-chalk/60">
-          We are never sarcastic, angry, partisan, or mocking. We speak with confidence, and with humility.
-        </p>
-      </section>
+    <section class="bg-paper text-asphalt">
+      <div class="mx-auto max-w-[1440px] px-5 py-20 lg:px-12 lg:py-28">
+        <article class="max-w-5xl border-t-2 border-asphalt pt-7">
+          <p class="eyebrow text-asphalt/45">What it is</p>
+          <p class="mt-5 max-w-4xl text-2xl font-medium leading-9 text-asphalt/80 sm:text-3xl sm:leading-10">
+            This movement was inspired by a simple idea: how much can you use artificial intelligence to help persuade people to make a small change in their daily habits by presenting them with well-researched data and a well-worded opinion in an appealing format?
+          </p>
+        </article>
+      </div>
+    </section>
 
-      <section class="mt-10">
-        <h2 class="font-display text-2xl font-semibold">Leadership</h2>
-        <p class="mt-3 leading-relaxed text-chalk/75">
-          Face Forward is led by a small collective of researchers, designers, and civic-minded volunteers who
-          believe the details of everyday life are worth taking seriously.
-        </p>
-      </section>
+    <section class="bg-asphalt text-chalk">
+      <div class="mx-auto max-w-[1440px] px-5 py-20 lg:px-12 lg:py-28">
+        <p class="eyebrow text-chalk/45">How it was made</p>
+        <h2 class="mt-6 max-w-4xl text-4xl leading-[.98] sm:text-5xl lg:text-6xl">Human-led with real human creativity.<br /><span class="text-gold">Made by machine.</span></h2>
+        <div class="mt-10 grid max-w-5xl gap-8 leading-8 text-chalk/68 md:grid-cols-2 md:gap-16">
+          <p>AI systems participated in research code, analysis, writing, visual exploration, and implementation. Their contribution is substantial and intentionally visible.</p>
+          <p>The concept, design decisions and final edits were all made by a real person.</p>
+        </div>
+      </div>
+    </section>
 
-      <section id="contact" class="mt-10">
-        <h2 class="font-display text-2xl font-semibold">Contact</h2>
-        <p class="mt-3 leading-relaxed text-chalk/75">
-          Questions, press inquiries, or chapter proposals: <a class="text-gold underline" href="mailto:hello@parkfaceforward.org">hello@parkfaceforward.org</a>
-        </p>
-      </section>
-    </div>
+    <section id="contact" class="bg-gold text-asphalt">
+      <div class="mx-auto flex max-w-[1440px] flex-col justify-between gap-8 px-5 py-16 sm:flex-row sm:items-end lg:px-12">
+        <div>
+          <p class="eyebrow text-asphalt/55">Contact</p>
+          <h2 class="mt-4 text-4xl sm:text-5xl">Questions are welcome.</h2>
+        </div>
+        <a href="mailto:hello@parkfaceforward.org" class="inline-flex min-h-12 items-center justify-center bg-asphalt px-7 text-xs font-bold uppercase tracking-[.14em] text-chalk hover:bg-chalk hover:text-asphalt">hello@parkfaceforward.org</a>
+      </div>
+    </section>
   </main>
   <SiteFooter />
 </Layout>

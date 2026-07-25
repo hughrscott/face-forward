@@ -22,6 +22,7 @@ wheels/
 *.pyc
 
 # Virtual environments
+.venv/
 venv/
 env/
 ENV/
@@ -44,11 +45,37 @@ site/.astro/
 
 # Node
 node_modules/
-package-lock.json
 yarn.lock
 
 # Tools
 .tools/
+.tmp/
+
+# Local model weights and source design bundles
+*.pt
+design/**/*.zip
+
+# One-off local analysis and verification scripts
+/analysis_*.py
+/diagnose_*.py
+/verify_*.py
+/label_blind_items.py
+/dlp/detector_v2_boundary_analysis.py
+/dlp/analyze_*.py
+/dlp/brief_analysis.py
+/dlp/debug_trajectory.py
+/dlp/detailed_analysis.py
+/dlp/final_labels.py
+/dlp/final_validate_*.py
+/dlp/generate_labels*.py
+/dlp/generate_validation_plots.py
+/dlp/patch_labels_*.py
+/dlp/review_edge_cases.py
+/docs/detector-v1-root-cause-analysis.md
+
+# Merchandise source selections are retained locally until production artwork
+# replaces the exploratory PNGs.
+/design/selected-merch/
 
 # Logs
 *.log
@@ -59,5 +86,6 @@ yarn.lock
 # Licensed research datasets and derived local inspection artifacts
 # (local only; never commit or redistribute)
 dlp/data/
-dlp/results/
+dlp/results/*
+!dlp/results/v2-exploratory-analysis.json
 data/dlp/
