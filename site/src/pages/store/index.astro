@@ -3,68 +3,137 @@ import Layout from '../../layouts/Layout.astro';
 import NavBar from '../../components/NavBar.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import FFMark from '../../components/FFMark.astro';
+
+const teeUrl = 'https://face-forward-shop.fourthwall.com/products/face-forward-t-shirt';
+const stickerUrl = 'https://face-forward-shop.fourthwall.com/products/face-forward-bumper-sticker';
+const mugUrl = 'https://face-forward-shop.fourthwall.com/products/face-forward-black-glossy-mug';
 ---
-<Layout title="Merchandise" description="Three restrained Face Forward merchandise studies: a bumper sticker, a wearable, and a parking-lot sign.">
+
+<Layout title="Merchandise" description="The Face Forward First Edition: a T-shirt, bumper sticker, and black glossy mug, produced on demand by Fourthwall.">
   <NavBar />
   <main id="main">
     <header class="border-b rule">
       <div class="mx-auto max-w-[1440px] px-5 py-20 lg:px-12 lg:py-28">
-        <p class="eyebrow text-gold">The uniform · design studies</p>
-        <h1 class="mt-6 max-w-4xl text-5xl leading-[.92] sm:text-6xl lg:text-8xl">Artifacts from the position.</h1>
+        <p class="eyebrow text-gold">The uniform · first edition</p>
+        <h1 class="mt-6 max-w-5xl text-5xl leading-[.92] sm:text-6xl lg:text-8xl">The position, in three objects.</h1>
         <p class="mt-8 max-w-2xl text-lg leading-8 text-chalk/65">
-          Not a store. Not yet. Three objects are enough to test whether the world of Face Forward belongs off-screen.
+          A T-shirt, a bumper sticker, and a black glossy mug. Produced on demand by Fourthwall, without turning a small idea into a sprawling catalog.
         </p>
       </div>
     </header>
 
-    <section class="bg-paper text-asphalt">
+    <section class="bg-paper text-asphalt" aria-labelledby="collection-heading">
       <div class="mx-auto max-w-[1440px] px-5 py-20 lg:px-12 lg:py-28">
+        <div class="mb-12 flex flex-col justify-between gap-4 border-b border-asphalt/15 pb-6 sm:flex-row sm:items-end">
+          <div>
+            <p class="eyebrow text-asphalt/45">The Fourthwall collection</p>
+            <h2 id="collection-heading" class="mt-4 text-4xl sm:text-5xl">Three objects. Then stop.</h2>
+          </div>
+          <p class="max-w-md text-sm leading-6 text-asphalt/60">Each piece carries the same compact argument: arrive simply, face forward, and keep your sense of humor.</p>
+        </div>
+
         <div class="grid gap-16 lg:grid-cols-3 lg:gap-8">
           <article>
-            <p class="eyebrow text-asphalt/45">01 · Bumper sticker</p>
-            <div class="mt-6 flex aspect-[4/3] items-center bg-concrete p-7">
-              <div class="w-full rotate-[-2deg] border-[3px] border-asphalt bg-gold p-4 shadow-[7px_8px_0_rgba(19,19,22,.16)]">
+            <p class="eyebrow text-asphalt/45">01 · T-shirt</p>
+            <a
+              href={teeUrl}
+              class="product-stage mt-6 bg-concrete"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="View the Face Forward T-shirt on Fourthwall (opens in a new tab)"
+            >
+              <div class="tee-mockup" aria-hidden="true">
+                <div class="tee-lockup">
+                  <FFMark class="text-[54px] text-chalk" />
+                  <p class="mt-2 font-display text-lg font-black leading-[.88] tracking-[-.04em] text-chalk">FACE<br />FORWARD</p>
+                </div>
+              </div>
+            </a>
+            <h3 class="mt-6 text-2xl">Face Forward T-shirt</h3>
+            <p class="mt-3 text-sm leading-6 text-asphalt/65">The Double-F parking mark and wordmark, printed large on black. The fullest expression of the identity.</p>
+            <a href={teeUrl} target="_blank" rel="noreferrer" class="product-link">
+              View on Fourthwall <span aria-hidden="true">↗</span>
+            </a>
+          </article>
+
+          <article>
+            <p class="eyebrow text-asphalt/45">02 · Bumper sticker</p>
+            <a
+              href={stickerUrl}
+              class="product-stage mt-6 bg-concrete p-7"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="View the Face Forward bumper sticker on Fourthwall (opens in a new tab)"
+            >
+              <div class="w-full rotate-[-2deg] border-[3px] border-asphalt bg-gold p-4 shadow-[7px_8px_0_rgba(19,19,22,.16)]" aria-hidden="true">
                 <div class="flex items-center gap-4">
                   <FFMark class="text-[42px] text-asphalt" />
                   <p class="font-display text-2xl font-black leading-[.88] tracking-[-.04em]">FACE<br />FORWARD</p>
                 </div>
               </div>
-            </div>
-            <h2 class="mt-6 text-2xl">The rear-bumper irony.</h2>
-            <p class="mt-3 text-sm leading-6 text-asphalt/65">250 × 65 mm. Safety Gold on asphalt. The smallest complete version of the idea.</p>
-            <p class="mt-5 text-[11px] font-bold uppercase tracking-[.16em] text-asphalt/45">Placeholder · production file pending</p>
+            </a>
+            <h3 class="mt-6 text-2xl">Face Forward bumper sticker</h3>
+            <p class="mt-3 text-sm leading-6 text-asphalt/65">Safety Gold on asphalt. Made for the rear bumper, where the irony can do a little work.</p>
+            <a href={stickerUrl} target="_blank" rel="noreferrer" class="product-link">
+              View on Fourthwall <span aria-hidden="true">↗</span>
+            </a>
           </article>
 
           <article>
-            <p class="eyebrow text-asphalt/45">02 · Wearable</p>
-            <div class="relative mt-6 flex aspect-[4/3] items-center justify-center overflow-hidden bg-asphalt">
-              <span class="absolute left-1/2 top-0 h-16 w-32 -translate-x-1/2 rounded-b-[50%] border-x border-b border-chalk/15"></span>
-              <div class="absolute left-[24%] top-[38%]">
-                <FFMark class="text-[54px] text-gold" />
-                <p class="mt-3 text-[9px] font-bold uppercase tracking-[.16em] text-chalk/40">58 mm embroidery</p>
-              </div>
-            </div>
-            <h2 class="mt-6 text-2xl">Quietly on the left.</h2>
-            <p class="mt-3 text-sm leading-6 text-asphalt/65">A polo or heavyweight overshirt. Double-F mark only. No slogan required.</p>
-            <p class="mt-5 text-[11px] font-bold uppercase tracking-[.16em] text-asphalt/45">Placeholder · garment selection pending</p>
-          </article>
-
-          <article>
-            <p class="eyebrow text-asphalt/45">03 · Lot sign</p>
-            <div class="mt-6 flex aspect-[4/3] items-center justify-center bg-concrete p-7">
-              <div class="flex aspect-[2/3] h-[84%] flex-col justify-between border-[3px] border-asphalt bg-gold p-5 text-asphalt shadow-[7px_8px_0_rgba(19,19,22,.16)]">
-                <FFMark class="text-[46px]" />
-                <div>
-                  <p class="font-display text-2xl font-black leading-[.9]">FACE<br />FORWARD<br />ONLY</p>
-                  <p class="mt-4 border-t-2 border-asphalt pt-3 text-[8px] font-bold uppercase leading-3 tracking-[.1em]">Violators will be<br />quietly noticed.</p>
+            <p class="eyebrow text-asphalt/45">03 · Black glossy mug</p>
+            <a
+              href={mugUrl}
+              class="product-stage mt-6 bg-concrete"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="View the Face Forward black glossy mug on Fourthwall (opens in a new tab)"
+            >
+              <div class="mug-mockup" aria-hidden="true">
+                <div class="mug-shine"></div>
+                <div class="mug-mark">
+                  <FFMark class="text-[46px] text-gold" />
                 </div>
+                <div class="mug-handle"></div>
               </div>
-            </div>
-            <h2 class="mt-6 text-2xl">For one agreeable lot.</h2>
-            <p class="mt-3 text-sm leading-6 text-asphalt/65">300 × 450 mm aluminum. A real-world sign study, not the beginning of a partner program.</p>
-            <p class="mt-5 text-[11px] font-bold uppercase tracking-[.16em] text-asphalt/45">Placeholder · site test pending</p>
+            </a>
+            <h3 class="mt-6 text-2xl">Face Forward black glossy mug</h3>
+            <p class="mt-3 text-sm leading-6 text-asphalt/65">Black ceramic with the Double-F mark. A quieter object for desks, kitchens, and unnecessary parking discussions.</p>
+            <a href={mugUrl} target="_blank" rel="noreferrer" class="product-link">
+              View on Fourthwall <span aria-hidden="true">↗</span>
+            </a>
           </article>
         </div>
+      </div>
+    </section>
+
+    <section class="border-y rule bg-night text-chalk" aria-labelledby="sign-heading">
+      <div class="mx-auto grid max-w-[1440px] gap-14 px-5 py-20 lg:grid-cols-[.75fr_1.25fr] lg:items-center lg:px-12 lg:py-28">
+        <div>
+          <p class="eyebrow text-gold">The campaign object · Not for sale</p>
+          <h2 id="sign-heading" class="mt-6 max-w-xl text-4xl leading-[.98] sm:text-5xl lg:text-6xl">One sign for one agreeable space.</h2>
+          <p class="mt-7 max-w-lg leading-7 text-chalk/68">
+            The parking sign sits outside the shop on purpose. It is a 12 × 18-inch campaign object intended for a single real parking space, not a fourth product to fulfill.
+          </p>
+          <p class="mt-5 max-w-lg leading-7 text-chalk/68">
+            It was too good to leave in the design folder. The artwork will be produced separately as one aluminum sign and remains a personal First Edition artifact.
+          </p>
+        </div>
+
+        <figure class="mx-auto w-full max-w-[620px] bg-concrete p-5 text-asphalt sm:p-8">
+          <img
+            src="/assets/merchandise/face-forward-parking-sign-12x18.webp"
+            alt="Face Forward Only parking sign with a black Double-F parking-stall mark, two gold and two gray cars, and parkfaceforward.org on a gold footer."
+            width="1440"
+            height="2160"
+            loading="lazy"
+            decoding="async"
+            class="block h-auto w-full shadow-[12px_14px_0_rgba(19,19,22,.16)]"
+          />
+          <figcaption class="mt-6 flex flex-col justify-between gap-2 text-[10px] font-bold uppercase tracking-[.14em] text-asphalt/55 sm:flex-row">
+            <span>12 × 18 in · aluminum sign artwork</span>
+            <span>Personal artifact · Not for sale</span>
+          </figcaption>
+        </figure>
       </div>
     </section>
 
@@ -72,11 +141,97 @@ import FFMark from '../../components/FFMark.astro';
       <div class="mx-auto flex max-w-[1440px] flex-col justify-between gap-8 px-5 py-16 sm:flex-row sm:items-end lg:px-12">
         <div>
           <p class="eyebrow text-asphalt/55">First edition discipline</p>
-          <h2 class="mt-4 text-4xl sm:text-5xl">Three objects. Then stop.</h2>
+          <h2 class="mt-4 text-4xl sm:text-5xl">A collection, not a catalog.</h2>
         </div>
-        <a href="/about/#contact" class="inline-flex min-h-12 items-center justify-center bg-asphalt px-7 text-xs font-bold uppercase tracking-[.14em] text-chalk hover:bg-chalk hover:text-asphalt">Tell me what earns production</a>
+        <a href="https://face-forward-shop.fourthwall.com/" target="_blank" rel="noreferrer" class="inline-flex min-h-12 items-center justify-center bg-asphalt px-7 text-xs font-bold uppercase tracking-[.14em] text-chalk hover:bg-chalk hover:text-asphalt">
+          Visit the Fourthwall shop <span class="ml-3" aria-hidden="true">↗</span>
+        </a>
       </div>
     </section>
   </main>
   <SiteFooter />
 </Layout>
+
+<style>
+  .product-stage {
+    display: flex;
+    aspect-ratio: 4 / 3;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: background-color 180ms ease;
+  }
+
+  .product-stage:hover { background-color: #d4d2cb; }
+
+  .product-link {
+    margin-top: 1.25rem;
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: .6rem;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+
+  .product-link:hover { color: #8a6410; }
+
+  .tee-mockup {
+    position: relative;
+    width: 66%;
+    aspect-ratio: 4 / 5;
+    background: #131316;
+    clip-path: polygon(26% 0, 40% 0, 43% 7%, 57% 7%, 60% 0, 74% 0, 100% 18%, 84% 40%, 75% 35%, 75% 100%, 25% 100%, 25% 35%, 16% 40%, 0 18%);
+    filter: drop-shadow(10px 12px 0 rgba(19, 19, 22, .14));
+  }
+
+  .tee-lockup {
+    position: absolute;
+    left: 32%;
+    top: 29%;
+  }
+
+  .mug-mockup {
+    position: relative;
+    width: 48%;
+    aspect-ratio: 1 / .9;
+    border-radius: 0 0 15% 15%;
+    background: #131316;
+    box-shadow: 10px 12px 0 rgba(19, 19, 22, .14);
+  }
+
+  .mug-shine {
+    position: absolute;
+    left: 9%;
+    top: 8%;
+    height: 68%;
+    width: 5%;
+    border-radius: 999px;
+    background: rgba(242, 240, 234, .14);
+  }
+
+  .mug-mark {
+    position: absolute;
+    left: 50%;
+    top: 48%;
+    transform: translate(-50%, -50%);
+  }
+
+  .mug-handle {
+    position: absolute;
+    right: -34%;
+    top: 18%;
+    width: 40%;
+    height: 55%;
+    border: 18px solid #131316;
+    border-left: 0;
+    border-radius: 0 999px 999px 0;
+  }
+
+  @media (max-width: 420px) {
+    .tee-lockup { left: 30%; top: 27%; transform: scale(.86); transform-origin: top left; }
+    .mug-handle { border-width: 14px; }
+  }
+</style>
