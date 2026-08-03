@@ -91,7 +91,13 @@ def test_store_displays_the_parking_sign_as_a_not_for_sale_artifact():
 def test_homepage_introduces_the_current_first_edition_collection():
     page = HOME_PAGE.read_text()
 
-    assert "The Double-F mark on a black T-shirt, bumper sticker, and glossy mug." in page
+    assert "Spread the word." in page
+    assert (
+        "Purchase merchandise online and show your friends, neighbors and coparkers "
+        "why you face facts, and face forward."
+    ) in page
+    assert "Wear the position lightly." not in page
+    assert "The Double-F mark on a black T-shirt, bumper sticker, and glossy mug." not in page
     assert "One bumper sticker. One wearable. One sign for the lot." not in page
     assert "Placeholder product rendering" not in page
     assert "Shop the First Edition" in page
