@@ -88,6 +88,15 @@ def test_store_displays_the_parking_sign_as_a_not_for_sale_artifact():
     assert "Face Forward Only parking sign" in page
 
 
+def test_store_closing_cta_links_to_the_manifesto_not_the_storefront_root():
+    page = STORE_PAGE.read_text()
+
+    assert 'href="/manifesto/"' in page
+    assert "Understand our position" in page
+    assert 'href="https://face-forward-shop.fourthwall.com/"' not in page
+    assert "Shop on Fourthwall" not in page
+
+
 def test_homepage_introduces_the_current_first_edition_collection():
     page = HOME_PAGE.read_text()
 
