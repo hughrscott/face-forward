@@ -97,13 +97,24 @@ def test_store_closing_cta_links_to_the_manifesto_not_the_storefront_root():
     assert "Shop on Fourthwall" not in page
 
 
+def test_no_em_dashes_anywhere_in_visitor_facing_source():
+    """Em dashes read as an AI tell; the site copy must stay free of them."""
+    pages_dir = PROJECT_ROOT / "site" / "src"
+    offenders = []
+    for astro_file in pages_dir.rglob("*.astro"):
+        text = astro_file.read_text()
+        if "\u2014" in text or "&mdash;" in text or "&#8212;" in text:
+            offenders.append(str(astro_file.relative_to(PROJECT_ROOT)))
+    assert not offenders, f"Em dashes found in: {offenders}"
+
+
 def test_homepage_introduces_the_current_first_edition_collection():
     page = HOME_PAGE.read_text()
 
     assert "Spread the word." in page
     assert (
         "Purchase merchandise online and show your friends, neighbors and coparkers "
-        "why you face facts, and face forward."
+        "why you face facts. Face forward."
     ) in page
     assert "Wear the position lightly." not in page
     assert "The Double-F mark on a black T-shirt, bumper sticker, and glossy mug." not in page
